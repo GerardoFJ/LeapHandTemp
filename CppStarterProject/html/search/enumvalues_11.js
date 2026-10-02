@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['rd_5flast_0',['RD_LAST',['../namespace_haptx_api.html#a3f2bbf512e154b7c6d1ea0a8cf1dd5d0a241ce0a3d860593b4ec1ea13a518f30e',1,'HaptxApi']]],
+  ['rd_5fleft_1',['RD_LEFT',['../namespace_haptx_api.html#a3f2bbf512e154b7c6d1ea0a8cf1dd5d0a45af9554dd89a04f84917969421ed5f5',1,'HaptxApi']]],
+  ['rd_5fright_2',['RD_RIGHT',['../namespace_haptx_api.html#a3f2bbf512e154b7c6d1ea0a8cf1dd5d0a9a113ab2a702179c690877bd8633bbc4',1,'HaptxApi']]],
+  ['rd_5funknown_3',['RD_UNKNOWN',['../namespace_haptx_api.html#a3f2bbf512e154b7c6d1ea0a8cf1dd5d0a139263ff993d9b2a5d19f16c01866993',1,'HaptxApi']]],
+  ['right_4',['RIGHT',['../_hx_shared_8cs.html#a2fbdef45e2e25f04ac6667e27d558772a21507b40c80068eda19865706fdc2403',1,'HxShared.cs']]],
+  ['right_5findex1_5',['RIGHT_INDEX1',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2ab86cbd6c81176277114b93adff26ec12',1,'HaptxApi']]],
+  ['right_5findex2_6',['RIGHT_INDEX2',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2aa7a83039a7042737c85a8f4e38b1608b',1,'HaptxApi']]],
+  ['right_5findex3_7',['RIGHT_INDEX3',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a99a6a1bb5815a39ada519a994d584e8f',1,'HaptxApi']]],
+  ['right_5fmiddle1_8',['RIGHT_MIDDLE1',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a0bd37eda131337028809e59f81175c42',1,'HaptxApi']]],
+  ['right_5fmiddle2_9',['RIGHT_MIDDLE2',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a8a540cf1944417283ba24a41887b0d8c',1,'HaptxApi']]],
+  ['right_5fmiddle3_10',['RIGHT_MIDDLE3',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2ad0c3ee6cfda1cdf2e386ee09291ff825',1,'HaptxApi']]],
+  ['right_5fpinky1_11',['RIGHT_PINKY1',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a80258b0f8da1553d014bd29400a3160a',1,'HaptxApi']]],
+  ['right_5fpinky2_12',['RIGHT_PINKY2',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a4f51effcd893a8867994982c1b0694d8',1,'HaptxApi']]],
+  ['right_5fpinky3_13',['RIGHT_PINKY3',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2afd68eb428df0693330c65cee89ab9b4d',1,'HaptxApi']]],
+  ['right_5fring1_14',['RIGHT_RING1',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a0f54b9596b9c87077eaecc1b8ed51e29',1,'HaptxApi']]],
+  ['right_5fring2_15',['RIGHT_RING2',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a1b2d97cc8f3e44ea9946ba3d1ca031f2',1,'HaptxApi']]],
+  ['right_5fring3_16',['RIGHT_RING3',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a38ba7dbae3b2f6a55863caa068e5b040',1,'HaptxApi']]],
+  ['right_5fthumb1_17',['RIGHT_THUMB1',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a4cc122209213183c586f4147e2d96028',1,'HaptxApi']]],
+  ['right_5fthumb2_18',['RIGHT_THUMB2',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2ae67c89a501d4307d869c880592a96031',1,'HaptxApi']]],
+  ['right_5fthumb3_19',['RIGHT_THUMB3',['../namespace_haptx_api.html#aad09d9c40d956e415d4548ffb41d96e2a4b442fc8dd2f0fadbd4ccdeaed2caaaa',1,'HaptxApi']]],
+  ['right_5fthumb_5fmetacarpal_20',['RIGHT_THUMB_METACARPAL',['../namespace_haptx_api.html#ab97339faa4bbbb0c4c02dab0a89fb935a73e4034856dbe235e45756caf325d1c4',1,'HaptxApi']]],
+  ['right_5fthumb_5fproximal_21',['RIGHT_THUMB_PROXIMAL',['../namespace_haptx_api.html#ab97339faa4bbbb0c4c02dab0a89fb935a097ce5c0fd92ef0d66c16f9693d84979',1,'HaptxApi']]],
+  ['ring_22',['RING',['../class_haptx_api_1_1_mocap_system.html#a8abb55de05ac01497d3157cdf08041fdadfa2e4be83549820ae0701eb7b6cd3f6',1,'HaptxApi::MocapSystem']]]
+];

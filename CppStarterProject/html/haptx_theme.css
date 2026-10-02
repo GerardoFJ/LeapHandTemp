@@ -1,0 +1,55 @@
+@font-face {
+	font-family: Lato;
+	src: url(https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap);
+}
+
+@font-face {
+	font-family: Sora;
+	src: url(https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=:wght@100..800&display=swap);
+}
+
+html, svg, defs, object {
+  --haptx-body-font: Lato;
+  --haptx-heading-font: Sora;
+
+  /* define a common set of colors used in the documentation */
+
+  /* HaptX Primary Colors */
+  /* Meant to be used as solids for backgrounds of layouts */
+  --haptx-primary1-black: #000000;
+  --haptx-primary1-charcoal: #404040;
+  --haptx-primary1-stone: #808080;
+
+  --haptx-primary2-offwhite: #e1e1e1;
+  --haptx-primary2-mid-offwhite: #e9e9e9;
+  --haptx-primary2-light-offwhite: #f0f0f0;
+
+  --haptx-primary3-blue-gray: #596570;
+  --haptx-primary3-mid-blue-gray: #828B94;
+  --haptx-primary3-light-blue-gray: #ACB2B7;
+
+  --haptx-primary4-onyx: #3D3D3D;
+  --haptx-primary4-mid-onyx: #6E6E6E;
+  --haptx-primary4-light-onyx: #9E9E9E;
+
+  /* HaptX Secondary Colors */
+  /* Meant to be used only for gradients with conjunction with the primary colors */
+  --haptx-secondary-red: #B23601;
+  --haptx-secondary-orange: #FF8A00;
+  --haptx-secondary-lightblue: #ADC3DC;
+  --haptx-secondary-green: #5B9E67;
+
+  /* Primary SDK site colors */
+  --haptx-background: var(--haptx-primary1-black);
+  --haptx-background-trans: rgb(0,0,0,0.7);
+  --haptx-background-trans2: rgb(0,0,0,0.6);
+  --haptx-background-trans3: rgb(0,0,0,0.5);
+  --haptx-foreground: #ffffff;
+  --haptx-foreground-trans: rgb(255,255,255,0.7);
+  --haptx-foreground-trans2: rgb(255,255,255,0.6);
+
+  /* Primary colors, tweaked to look good on --haptx-background */
+  --primary-red: #e86060;
+  --primary-green: #60e860;
+  --primary-blue: #8080f8;
+}

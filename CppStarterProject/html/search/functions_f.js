@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['quaternion_0',['Quaternion',['../class_haptx_api_1_1_quaternion.html#a8ccde46cfa08c224b7583a7888cdaf88',1,'HaptxApi::Quaternion::Quaternion()=default'],['../class_haptx_api_1_1_quaternion.html#a90c2b26ed108e102b8d60ae34231d92f',1,'HaptxApi::Quaternion::Quaternion(float r, float i, float j, float k)'],['../group__group__transform.html#gaac8683ae2c9ee7d116a8fe0cc7b761fb',1,'HaptxApi::Quaternion::Quaternion(const Vector3D &amp;axis, float theta) noexcept'],['../group__group__transform.html#gae0476cba7e494839d4c94178dc71d0fe',1,'HaptxApi::Quaternion::Quaternion(float z_rad, float y_rad, float x_rad) noexcept'],['../class_haptx_api_1_1_quaternion.html#a9c5d9db7402ac9c8934b98f8fe8acd23',1,'HaptxApi::Quaternion::Quaternion(BasisVectorPair pair, const Vector3D &amp;first, const Vector3D &amp;second) noexcept']]]
+];

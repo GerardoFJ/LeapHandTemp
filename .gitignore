@@ -1,0 +1,6 @@
+# local override for HAPTX_WORKDIR
+.env
+
+
+# exported prefix archive -- large, machine-specific, proprietary SDK
+sdk/*.tar.gz

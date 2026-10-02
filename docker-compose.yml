@@ -1,0 +1,37 @@
+services:
+  haptx:
+    image: haptx-linux:stable
+    container_name: haptx
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    privileged: true
+    network_mode: host
+    stdin_open: true
+    tty: true
+    ipc: host
+
+    volumes:
+      - /dev/shm:/dev/shm
+      - /dev/bus/usb:/dev/bus/usb
+      - /run/udev:/run/udev:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTH_DIR:-/run/user/1000/gdm}:/root/.xauth:ro
+      - ./workdir:/workdir
+
+    environment:
+      DISPLAY: ${DISPLAY:-:1}
+      XAUTHORITY: /root/.xauth/Xauthority
+      WINEPREFIX: /root/.wine
+      WINEDEBUG: ${WINEDEBUG:--all}
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    command: ["sleep", "infinity"]

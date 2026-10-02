@@ -1,0 +1,3 @@
+C:/Users/H64126NKe/Documents/HaptxC++/CppStarterProject/build/CMakeFiles/CppStarterProject.dir
+C:/Users/H64126NKe/Documents/HaptxC++/CppStarterProject/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/H64126NKe/Documents/HaptxC++/CppStarterProject/build/CMakeFiles/ZERO_CHECK.dir

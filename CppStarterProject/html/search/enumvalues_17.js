@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['x_0',['X',['../group__group__transform.html#gga547f8f3b2425d9e5c953bf8aa83f3034a02129bb861061d1a052c592e2dc6b383',1,'HaptxApi::X'],['../_hx_dof_8cs.html#a31879d256f90548afdb766c616193dfba02129bb861061d1a052c592e2dc6b383',1,'X:&#160;HxDof.cs'],['../haptx__primitives__shared_8h.html#af4ad029a8690dfe8fc06cc4b63aa96faa02129bb861061d1a052c592e2dc6b383',1,'X:&#160;haptx_primitives_shared.h']]],
+  ['x_5fang_1',['X_ANG',['../_hx_dof_8cs.html#ab4ecdbce6d917af399ccff3cd32c6a5aa608e414cd0875fdaee20f185de531481',1,'X_ANG:&#160;HxDof.cs'],['../haptx__primitives__shared_8h.html#ac20f78762b7821e076a7734934298638a608e414cd0875fdaee20f185de531481',1,'X_ANG:&#160;haptx_primitives_shared.h']]],
+  ['x_5flin_2',['X_LIN',['../_hx_dof_8cs.html#ab4ecdbce6d917af399ccff3cd32c6a5aa384a590979d92a72751f81ae00f855a7',1,'X_LIN:&#160;HxDof.cs'],['../haptx__primitives__shared_8h.html#ac20f78762b7821e076a7734934298638a384a590979d92a72751f81ae00f855a7',1,'X_LIN:&#160;haptx_primitives_shared.h']]],
+  ['xml_5fcannot_5fconvert_5ftext_3',['XML_CANNOT_CONVERT_TEXT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa2941b2c739d498e4897c967288068225',1,'HaptxApi']]],
+  ['xml_5ferror_5felement_5fmismatch_4',['XML_ERROR_ELEMENT_MISMATCH',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa723e9b6c337855e5d68886717e06700c',1,'HaptxApi']]],
+  ['xml_5ferror_5fempty_5fdocument_5',['XML_ERROR_EMPTY_DOCUMENT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa3ee954d1e7ccf4b72dac3cc9f65709bc',1,'HaptxApi']]],
+  ['xml_5ferror_5ffile_5fcould_5fnot_5fbe_5fopened_6',['XML_ERROR_FILE_COULD_NOT_BE_OPENED',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa6d05f8e9f1436658b696a5b737b11816',1,'HaptxApi']]],
+  ['xml_5ferror_5ffile_5fnot_5ffound_7',['XML_ERROR_FILE_NOT_FOUND',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa668048bf966d4a8ad087554229f27394',1,'HaptxApi']]],
+  ['xml_5ferror_5ffile_5fread_5ferror_8',['XML_ERROR_FILE_READ_ERROR',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa11a334844f493d890739b31ecb571bc7',1,'HaptxApi']]],
+  ['xml_5ferror_5fidentifying_5ftag_9',['XML_ERROR_IDENTIFYING_TAG',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa94d23c10ee33c3e70baa3905f458ffa5',1,'HaptxApi']]],
+  ['xml_5ferror_5fmismatched_5felement_10',['XML_ERROR_MISMATCHED_ELEMENT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4faef81c38b9defc967459770b7ded1a92d',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_11',['XML_ERROR_PARSING',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fac27cb778475907cc11ca8a1394b0bbd7',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5fattribute_12',['XML_ERROR_PARSING_ATTRIBUTE',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa96dd6673ef8759ea50d14fbd712fe7dd',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5fcdata_13',['XML_ERROR_PARSING_CDATA',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa1c4d70f2b86c10398fb2cc21926009d2',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5fcomment_14',['XML_ERROR_PARSING_COMMENT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa476047f53676e972c2f6736c865de272',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5fdeclaration_15',['XML_ERROR_PARSING_DECLARATION',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fac1f7607d435f85c734bffc4e43988ed1',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5felement_16',['XML_ERROR_PARSING_ELEMENT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa384f8985337db9e19e7905f19d4d6324',1,'HaptxApi']]],
+  ['xml_5ferror_5fparsing_5funknown_17',['XML_ERROR_PARSING_UNKNOWN',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fad4551700bedfba3736ecf90bcf93f61d',1,'HaptxApi']]],
+  ['xml_5fno_5fattribute_18',['XML_NO_ATTRIBUTE',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4facf42296ea9b7833c3224c87f207820c4',1,'HaptxApi']]],
+  ['xml_5fno_5ftext_5fnode_19',['XML_NO_TEXT_NODE',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa93d094b6b460807e1cd7aaa1f3bd8194',1,'HaptxApi']]],
+  ['xml_5fparse_5ferror_5ftext_20',['XML_PARSE_ERROR_TEXT',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa1224df77bfc733faaf858384ee77af4f',1,'HaptxApi']]],
+  ['xml_5fwrong_5fattribute_5ftype_21',['XML_WRONG_ATTRIBUTE_TYPE',['../namespace_haptx_api.html#af85a5c0d6caf8c683e4c165a6e81bd4fa8da22971e3dab4b82688e94d5f3644bc',1,'HaptxApi']]],
+  ['xy_22',['XY',['../group__group__transform.html#gga22942f46a2ab2129d9594eebbebbb40da74c53bcd3dcb2bb79993b2fec37d362a',1,'HaptxApi']]],
+  ['xz_23',['XZ',['../group__group__transform.html#gga22942f46a2ab2129d9594eebbebbb40da27db3b98d01e664c17a6620b222c6469',1,'HaptxApi']]]
+];
