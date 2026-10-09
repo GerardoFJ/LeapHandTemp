@@ -229,15 +229,6 @@ struct Step {
 // Decides, per tactor, whether it is the one being driven this frame.
 using SelectPredicate = std::function<bool(int slot, const Tactor&)>;
 
-// Builds one PneumaticFrame covering every drivable peripheral and renders it.
-//
-// Every tactor is named on every frame -- the ones that should be flat are
-// commanded to their minimum height rather than left out -- so a frame fully
-// describes the hardware state and nothing stays inflated by omission. Force
-// actuators are explicitly held DISENGAGED for the same reason: this test is
-// about the tactors, and the brakes should be out of the way.
-//
-// @param level How far to inflate the selected tactors, 0 (flat) to 1 (full).
 bool renderLevel(Airpack& airpack, const std::map<int, std::shared_ptr<Peripheral>>& peripherals,
                  const Options& options, const SelectPredicate& is_selected, float level) {
   PneumaticFrame pneumatic_frame;
