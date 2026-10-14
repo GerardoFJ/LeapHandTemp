@@ -1,6 +1,6 @@
 services:
   haptx:
-    image: haptx-linux:stable
+    image: gerardofj/haptx-linux:stable
     container_name: haptx
     build:
       context: .
