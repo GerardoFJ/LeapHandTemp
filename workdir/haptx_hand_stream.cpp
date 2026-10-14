@@ -5,21 +5,29 @@
 //
 //   glove -> MocapSystem -> DefaultHandIk -> AnimFrame -> UDP -> leap_teleop.py
 //
-// This is the --hand-view pipeline of tactile_demo.cpp without the drawing:
 // MocapSystem::addToMocapFrame() gives fingertip poses relative to the MCP3
-// tracking origin, DefaultHandIk::addToAnimFrame() solves them into per-finger
-// angles, and AnimFrame::angles carries, per finger, MCP/PIP/DIP flexion and an
-// adduction angle, all in radians. Nothing here actuates the glove.
+// tracking origin, and a hand IK solves them into an AnimFrame:
+//   * AlternateHandIk (default), the "natural angle" solver, fills both
+//     AnimFrame::angles (signed MCP/PIP/DIP hinge angles plus an adduction
+//     angle, flexion negative) and AnimFrame::l_orientations.
+//   * DefaultHandIk (--ik default), what tactile_demo --hand-view uses, only
+//     fills l_orientations.
+// Both sets are sent. leap_calibrate.py builds its mapping from the joint
+// orientations, which exist with either solver; the angles are there for a
+// hand-written mapping and for the live table. Nothing here actuates the glove.
 //
 // One datagram per frame, plain text so it is easy to read with netcat:
-//   H,<hand L|R>,<seq>,<t_ms>,
-//     <valid>,<mcp>,<pip>,<dip>,<add>,   x5 fingers: thumb, index, middle, ring, pinky
-// valid is 0 when the IK produced nothing for that finger, 1 when the angles
-// came from AnimFrame::angles, and 2 when they were recovered from the joint
-// orientations (flexion only, adduction then reads 0).
+//   H2,<hand L|R>,<seq>,<t_ms>,
+//     then per finger (thumb, index, middle, ring, pinky):
+//     <ang_ok>,<mcp>,<pip>,<dip>,<add>,<ori_ok>,<w,x,y,z joint1>,<joint2>,<joint3>
+// ang_ok is 1 when AnimFrame::angles had the finger (radians); ori_ok is 1
+// when all three joint orientations are there. Each orientation is relative to
+// its parent in the skeleton (joint1: the palm), as AnimFrame documents.
 //
 // Usage: haptx_hand_stream [options]
 //   --hand <h>        left | right                             (default left)
+//   --ik <solver>     alternate | default                      (default alternate)
+//   --no-legacy-blend AlternateHandIk: never blend in the legacy solver (fists)
 //   --host <ip>       where leap_teleop.py runs                (default 127.0.0.1)
 //   --port <n>        UDP port                                 (default 9871)
 //   --rate <hz>       frames per second                        (default 90)
@@ -41,6 +49,7 @@
 #endif
 
 #include <HaptxApi/airpack.h>
+#include <HaptxApi/alternate_hand_ik.h>
 #include <HaptxApi/anim_frame.h>
 #include <HaptxApi/default_hand_ik.h>
 #include <HaptxApi/enum.h>
@@ -66,6 +75,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <unordered_map>
 
 using namespace HaptxApi;
 
@@ -82,6 +92,8 @@ const char* const FINGER_NAMES[F_LAST] = {"THUMB", "INDEX", "MIDDLE", "RING", "P
 
 struct Options {
   RelativeDirection hand = RD_LEFT;
+  bool alternate_ik = true;
+  bool legacy_blend = true;
   std::string host = "127.0.0.1";
   int port = 9871;
   double rate_hz = 90.0;
@@ -92,6 +104,8 @@ void printUsage() {
   printf(
       "Usage: haptx_hand_stream [options]\n"
       "  --hand <h>        left | right                             (default left)\n"
+      "  --ik <solver>     alternate | default                      (default alternate)\n"
+      "  --no-legacy-blend AlternateHandIk: never blend in the legacy solver (fists)\n"
       "  --host <ip>       where leap_teleop.py runs                (default 127.0.0.1)\n"
       "  --port <n>        UDP port                                 (default 9871)\n"
       "  --rate <hz>       frames per second                        (default 90)\n"
@@ -121,6 +135,18 @@ bool parseArgs(int argc, char** argv, Options* options) {
         printf("Unrecognized --hand: %s (want left or right)\n", hand.c_str());
         return false;
       }
+    } else if (strcmp(arg, "--ik") == 0 && has_value) {
+      const std::string ik = toLower(argv[++i]);
+      if (ik == "alternate") {
+        options->alternate_ik = true;
+      } else if (ik == "default") {
+        options->alternate_ik = false;
+      } else {
+        printf("Unrecognized --ik: %s (want alternate or default)\n", ik.c_str());
+        return false;
+      }
+    } else if (strcmp(arg, "--no-legacy-blend") == 0) {
+      options->legacy_blend = false;
     } else if (strcmp(arg, "--host") == 0 && has_value) {
       options->host = argv[++i];
     } else if (strcmp(arg, "--port") == 0 && has_value) {
@@ -203,46 +229,40 @@ class UdpSender {
 // Angles
 // ---------------------------------------------------------------------------
 
-// One finger's angles, as sent.
-struct FingerAngles {
-  int valid = 0;  // 0 none, 1 from AnimFrame::angles, 2 recovered from orientations
+// One finger, as sent.
+struct FingerData {
+  bool has_angles = false;
   float joint_rad[FJ_LAST] = {0.0f, 0.0f, 0.0f};
   float adduction_rad = 0.0f;
+  bool has_orientations = false;
+  Quaternion orientations[FJ_LAST] = {Quaternion::identity(), Quaternion::identity(),
+                                      Quaternion::identity()};
 };
 
 // Pulls one finger out of an AnimFrame.
-//
-// DefaultHandIk::addToAnimFrame() documents itself as filling the joint
-// orientations, AnimFrame::l_orientations. AnimFrame::angles is a separate
-// field the solver does not always populate, so prefer it when it is there --
-// it is the only one carrying adduction -- and fall back to the orientations,
-// whose rotation magnitude about the joint axis is the bend.
-FingerAngles anglesFor(const AnimFrame& anim_frame, RelativeDirection handedness, Finger finger) {
-  FingerAngles out;
+FingerData fingerFrom(const AnimFrame& anim_frame, RelativeDirection handedness, Finger finger) {
+  FingerData out;
 
   const auto angle_it = anim_frame.angles.find(finger);
   if (angle_it != anim_frame.angles.end() && angle_it->second.flexion.isValid()) {
     const FingerAngleFrame& frame = angle_it->second;
-    out.valid = 1;
+    out.has_angles = true;
     out.joint_rad[FJ_JOINT1] = frame.flexion.theta_mcp_rad;
     out.joint_rad[FJ_JOINT2] = frame.flexion.theta_pip_rad;
     out.joint_rad[FJ_JOINT3] = frame.flexion.theta_dip_rad;
     out.adduction_rad = frame.adduction.isValid() ? frame.adduction.angle_rad : 0.0f;
-    return out;
   }
 
+  out.has_orientations = true;
   for (unsigned int joint = 0; joint < FJ_LAST; joint++) {
     const BodyPartJoint key =
         getBodyPartJoint(handedness, finger, static_cast<FingerJoint>(joint));
     const auto it = anim_frame.l_orientations.find(key);
     if (it == anim_frame.l_orientations.end()) {
-      continue;
+      out.has_orientations = false;
+      break;
     }
-    Vector3D axis;
-    float theta_rad = 0.0f;
-    it->second.toAxisAngle(axis, theta_rad);
-    out.joint_rad[joint] = std::fabs(theta_rad);
-    out.valid = 2;
+    out.orientations[joint] = it->second;
   }
   return out;
 }
@@ -355,6 +375,15 @@ int main(int argc, char** argv) {
   int lines_drawn = 0;
   const char hand_letter = options.hand == RD_LEFT ? 'L' : 'R';
 
+  // The natural solver can use the previous frame's angles as hints.
+  AlternateHandIk::Config ik_config;
+  ik_config.legacy_blend_enabled = options.legacy_blend;
+  std::unordered_map<Finger, FingerAngleHint> hints;
+  const char* ik_name = !options.alternate_ik ? "DefaultHandIk"
+                        : options.legacy_blend ? "AlternateHandIk"
+                                               : "AlternateHandIk, no legacy blend";
+  printf("IK: %s\n\n", ik_name);
+
   while (!g_interrupted) {
     // MOCAP_SOLVER_ERROR, MOCAP_BAD_SENSOR_DATA and NOT_READY are intermittent;
     // the frame below simply carries whatever the system still has.
@@ -362,25 +391,36 @@ int main(int argc, char** argv) {
 
     MocapFrame mocap_frame;
     AnimFrame anim_frame;
+    anim_frame.hints = hints;
     if (mocap_system->addToMocapFrame(&mocap_frame)) {
-      if (!DefaultHandIk::addToAnimFrame(glove, mocap_frame, profile, &anim_frame)) {
+      const bool solved =
+          options.alternate_ik
+              ? AlternateHandIk::addToAnimFrame(glove, ik_config, mocap_frame, profile, &anim_frame)
+              : DefaultHandIk::addToAnimFrame(glove, mocap_frame, profile, &anim_frame);
+      if (solved) {
+        hints = anim_frame.hints;
+      } else {
         ik_failures++;
       }
     } else {
       frame_failures++;
     }
 
-    FingerAngles fingers[F_LAST];
+    FingerData fingers[F_LAST];
     const long long t_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count();
-    char buffer[512];
-    int length = snprintf(buffer, sizeof(buffer), "H,%c,%lu,%lld", hand_letter, seq++, t_ms);
+    char buffer[2048];
+    int length = snprintf(buffer, sizeof(buffer), "H2,%c,%lu,%lld", hand_letter, seq++, t_ms);
     for (unsigned int finger = 0; finger < F_LAST; finger++) {
-      fingers[finger] = anglesFor(anim_frame, options.hand, static_cast<Finger>(finger));
-      const FingerAngles& f = fingers[finger];
-      length += snprintf(buffer + length, sizeof(buffer) - length, ",%d,%.4f,%.4f,%.4f,%.4f",
-                         f.valid, f.joint_rad[FJ_JOINT1], f.joint_rad[FJ_JOINT2],
-                         f.joint_rad[FJ_JOINT3], f.adduction_rad);
+      fingers[finger] = fingerFrom(anim_frame, options.hand, static_cast<Finger>(finger));
+      const FingerData& f = fingers[finger];
+      length += snprintf(buffer + length, sizeof(buffer) - length, ",%d,%.4f,%.4f,%.4f,%.4f,%d",
+                         f.has_angles ? 1 : 0, f.joint_rad[FJ_JOINT1], f.joint_rad[FJ_JOINT2],
+                         f.joint_rad[FJ_JOINT3], f.adduction_rad, f.has_orientations ? 1 : 0);
+      for (const Quaternion& q : f.orientations) {
+        length += snprintf(buffer + length, sizeof(buffer) - length, ",%.5f,%.5f,%.5f,%.5f",
+                           q.w_, q.x_, q.y_, q.z_);
+      }
     }
     sender.send(std::string(buffer, static_cast<size_t>(length)));
 
@@ -390,16 +430,24 @@ int main(int argc, char** argv) {
         printf("\033[%dA", lines_drawn);  // redraw in place
       }
       constexpr double kDeg = 180.0 / PI;
-      printf("  finger    MCP    PIP    DIP    ADD   src\n");
+      printf("  finger    MCP    PIP    DIP    ADD   joint rotation [deg]\n");
       for (unsigned int finger = 0; finger < F_LAST; finger++) {
-        const FingerAngles& f = fingers[finger];
-        if (f.valid == 0) {
-          printf("  %-7s    --     --     --     --   none \n", FINGER_NAMES[finger]);
-        } else {
-          printf("  %-7s %5.0f  %5.0f  %5.0f  %5.0f   %s\n", FINGER_NAMES[finger],
+        const FingerData& f = fingers[finger];
+        if (f.has_angles) {
+          printf("  %-7s %5.0f  %5.0f  %5.0f  %5.0f ", FINGER_NAMES[finger],
                  f.joint_rad[FJ_JOINT1] * kDeg, f.joint_rad[FJ_JOINT2] * kDeg,
-                 f.joint_rad[FJ_JOINT3] * kDeg, f.adduction_rad * kDeg,
-                 f.valid == 1 ? "ik   " : "quat ");
+                 f.joint_rad[FJ_JOINT3] * kDeg, f.adduction_rad * kDeg);
+        } else {
+          printf("  %-7s    --     --     --     -- ", FINGER_NAMES[finger]);
+        }
+        if (f.has_orientations) {
+          // Total rotation per joint, rest pose included: only a liveness cue.
+          for (const Quaternion& q : f.orientations) {
+            printf("  %4.0f", 2.0 * std::acos(std::min(1.0f, std::fabs(q.w_))) * kDeg);
+          }
+          printf("   \n");
+        } else {
+          printf("    --    --    --   \n");
         }
       }
       printf("  sent %-8lu  mocap frame fail %-5d  ik fail %-5d\n", seq, frame_failures,

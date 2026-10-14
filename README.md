@@ -73,3 +73,5 @@ beside it.
 **GCC and MinGW cannot build against this SDK**, which is why MSVC is in the
 image at all. `HaptxApi.dll` exports MSVC-mangled C++ names:
 
+Download sdk
+https://drive.google.com/file/d/10KMDskOyoicYufqXMdKbBPkUN487ozwd/view?usp=drivesdk
