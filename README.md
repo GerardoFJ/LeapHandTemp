@@ -75,3 +75,16 @@ image at all. `HaptxApi.dll` exports MSVC-mangled C++ names:
 
 Download sdk
 https://drive.google.com/file/d/10KMDskOyoicYufqXMdKbBPkUN487ozwd/view?usp=drivesdk
+
+
+Glove PC:
+# 1. glove streamer (no rebuild needed)
+docker compose exec -w /workdir haptx wine haptx_hand_stream.exe --hand right
+
+# 2. calibrate the right hand (same 9 poses; the viewer shows the right LEAP hand)
+./leap_calibrate.py --hand right
+
+# 3. check it in the sim, then send it to the LEAP PC
+./leap_teleop.py --hand right --monitor
+./leap_teleop.py --hand right --send <leap-pc-ip>
+The calibration writes leap_mapping_right.json and leap_calib_raw_right.json. To re-fit later without redoing the poses: ./leap_calibrate.py --hand right --from-raw leap_calib_raw_right.json.
