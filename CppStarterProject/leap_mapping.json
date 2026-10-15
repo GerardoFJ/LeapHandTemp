@@ -1,0 +1,438 @@
+{
+  "_doc": [
+    "Written by leap_calibrate.py -- rerun it rather than editing by hand",
+    "(./leap_calibrate.py --from-raw leap_calib_raw.json re-fits without the glove).",
+    "LEAP target [rad, sim convention: 0 = flat] = offset + sum(gain * feature).",
+    "A feature is one glove joint's rotation [rad] about 'axis', measured from 'rest',",
+    "the joint orientations of the calibration's open pose.",
+    "The LEAP ring finger follows the human pinky."
+  ],
+  "smoothing": 0.35,
+  "max_speed_rad_s": 8.0,
+  "calibration": {
+    "date": "2026-10-15T08:07:13",
+    "poses": [
+      "open",
+      "fist",
+      "spread",
+      "thumb_side",
+      "thumb_forward",
+      "thumb_curl",
+      "pinch_index",
+      "pinch_middle",
+      "pinch_pinky"
+    ]
+  },
+  "rest": {
+    "thumb": [
+      [
+        0.9761,
+        -0.121399,
+        -0.130377,
+        -0.124472
+      ],
+      [
+        0.867425,
+        0.0,
+        0.497569,
+        0.0
+      ],
+      [
+        0.887591,
+        0.0,
+        -0.460633,
+        0.0
+      ]
+    ],
+    "index": [
+      [
+        0.999839,
+        1e-05,
+        -0.017822,
+        0.002068
+      ],
+      [
+        0.999026,
+        0.0,
+        -0.044128,
+        0.0
+      ],
+      [
+        0.999654,
+        0.0,
+        -0.026317,
+        0.0
+      ]
+    ],
+    "middle": [
+      [
+        0.998593,
+        -0.003612,
+        -0.019615,
+        0.049135
+      ],
+      [
+        0.998871,
+        0.0,
+        -0.047497,
+        0.0
+      ],
+      [
+        0.999612,
+        0.0,
+        -0.027872,
+        0.0
+      ]
+    ],
+    "pinky": [
+      [
+        0.987169,
+        -0.01404,
+        -0.026267,
+        0.156879
+      ],
+      [
+        0.998051,
+        0.0,
+        -0.062396,
+        0.0
+      ],
+      [
+        0.999358,
+        0.0,
+        -0.035826,
+        0.0
+      ]
+    ]
+  },
+  "features": {
+    "index.flex1": {
+      "finger": "index",
+      "joint": 0,
+      "axis": [
+        -0.07452,
+        0.91739,
+        0.39094
+      ]
+    },
+    "index.flex2": {
+      "finger": "index",
+      "joint": 1,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "index.spread": {
+      "finger": "index",
+      "joint": 0,
+      "axis": [
+        -0.04714,
+        0.38836,
+        -0.9203
+      ]
+    },
+    "middle.flex1": {
+      "finger": "middle",
+      "joint": 0,
+      "axis": [
+        -0.08894,
+        0.87633,
+        0.47343
+      ]
+    },
+    "middle.flex2": {
+      "finger": "middle",
+      "joint": 1,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "pinky.flex1": {
+      "finger": "pinky",
+      "joint": 0,
+      "axis": [
+        0.28979,
+        0.95302,
+        -0.08823
+      ]
+    },
+    "pinky.flex2": {
+      "finger": "pinky",
+      "joint": 1,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "pinky.flex3": {
+      "finger": "pinky",
+      "joint": 2,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "pinky.spread": {
+      "finger": "pinky",
+      "joint": 0,
+      "axis": [
+        0.13211,
+        0.05147,
+        0.9899
+      ]
+    },
+    "thumb.base1": {
+      "finger": "thumb",
+      "joint": 0,
+      "axis": [
+        -0.03252,
+        -0.96618,
+        0.25583
+      ]
+    },
+    "thumb.base2": {
+      "finger": "thumb",
+      "joint": 0,
+      "axis": [
+        0.06005,
+        0.25361,
+        0.96544
+      ]
+    },
+    "thumb.bend2": {
+      "finger": "thumb",
+      "joint": 1,
+      "axis": [
+        -0.0,
+        -1.0,
+        -0.0
+      ]
+    },
+    "thumb.bend3": {
+      "finger": "thumb",
+      "joint": 2,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  },
+  "joints": [
+    {
+      "id": 0,
+      "mjcf": "if_rot",
+      "offset": -0.0125,
+      "inputs": [
+        {
+          "feature": "index.spread",
+          "gain": 0.8984
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "mjcf": "if_mcp",
+      "offset": -0.0409,
+      "inputs": [
+        {
+          "feature": "index.flex1",
+          "gain": 2.4522
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "mjcf": "if_pip",
+      "offset": 0.0399,
+      "inputs": [
+        {
+          "feature": "index.flex2",
+          "gain": 0.8306
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "mjcf": "if_dip",
+      "offset": 0.1833,
+      "inputs": []
+    },
+    {
+      "id": 4,
+      "mjcf": "mf_rot",
+      "offset": 0.0,
+      "inputs": []
+    },
+    {
+      "id": 5,
+      "mjcf": "mf_mcp",
+      "offset": 0.032,
+      "inputs": [
+        {
+          "feature": "middle.flex1",
+          "gain": 1.9705
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "mjcf": "mf_pip",
+      "offset": 0.0334,
+      "inputs": [
+        {
+          "feature": "middle.flex2",
+          "gain": 0.7211
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "mjcf": "mf_dip",
+      "offset": 0.1833,
+      "inputs": []
+    },
+    {
+      "id": 8,
+      "mjcf": "rf_rot",
+      "offset": -0.0306,
+      "inputs": [
+        {
+          "feature": "pinky.spread",
+          "gain": -1.2576
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "mjcf": "rf_mcp",
+      "offset": -0.0924,
+      "inputs": [
+        {
+          "feature": "pinky.flex1",
+          "gain": 2.6173
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "mjcf": "rf_pip",
+      "offset": -0.0259,
+      "inputs": [
+        {
+          "feature": "pinky.flex2",
+          "gain": 0.8523
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "mjcf": "rf_dip",
+      "offset": -0.0489,
+      "inputs": [
+        {
+          "feature": "pinky.flex3",
+          "gain": 3.0
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "mjcf": "th_cmc",
+      "offset": 0.0789,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": -1.1757
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": -0.4506
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 0.2541
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.9292
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "mjcf": "th_axl",
+      "offset": 0.0212,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": 0.4582
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": 0.0468
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 0.3203
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.1459
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "mjcf": "th_mcp",
+      "offset": 0.3581,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": 0.172
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": 2.4486
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": -0.0737
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.331
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "mjcf": "th_ipl",
+      "offset": 0.0245,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": 0.7081
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": 1.3207
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 0.8141
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.4985
+        }
+      ]
+    }
+  ]
+}

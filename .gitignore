@@ -1,3 +1,3 @@
 .env
 sdk/*.tar.gz
-CppStarterProject/
+#CppStarterProject/
