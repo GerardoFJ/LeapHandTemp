@@ -111,7 +111,8 @@ ENV PATH="/opt/wine-staging/bin:${PATH}" \
     WINEPREFIX=/root/.wine \
     WINEARCH=win64 \
     WINEDLLOVERRIDES="mscoree,mshtml=" \
-    WINEDEBUG=-all
+    WINEDEBUG=-all \
+    WINEUSB_VIDS=3181
 
 # Fail the build loudly if the source and the package are not the same release.
 RUN set -eu; \

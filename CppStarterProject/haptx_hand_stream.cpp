@@ -12,9 +12,16 @@
 //     angle, flexion negative) and AnimFrame::l_orientations.
 //   * DefaultHandIk (--ik default), what tactile_demo --hand-view uses, only
 //     fills l_orientations.
-// Both sets are sent. leap_calibrate.py builds its mapping from the joint
-// orientations, which exist with either solver; the angles are there for a
-// hand-written mapping and for the live table. Nothing here actuates the glove.
+// Both sets are sent: leap_calibrate.py fits the fingers on the angles and the
+// thumb on the joint orientations.
+//
+// With --feedback it also closes the loop the other way: leap_hand_node.py
+// sends back how hard each LEAP finger is pushing (its motor current while it
+// is held short of its target), and the glove's force-feedback brakes engage
+// on those fingers, so your finger stops where the robot's finger met the
+// object. The brakes are on/off (PassiveForceActuator), so a finger engages at
+// --engage and only releases below --release, after at least --min-hold-ms.
+// Without --feedback nothing here actuates the glove.
 //
 // One datagram per frame, plain text so it is easy to read with netcat:
 //   H2,<hand L|R>,<seq>,<t_ms>,
@@ -32,6 +39,15 @@
 //   --port <n>        UDP port                                 (default 9871)
 //   --rate <hz>       frames per second                        (default 90)
 //   --quiet           no live angle table
+//   --feedback        engage the finger brakes from leap_hand_node.py's effort
+//   --feedback-port <n>  UDP port for that effort                (default 9873)
+//   --engage <0-1>    effort that engages a finger's brake       (default 0.30)
+//   --release <0-1>   effort below which it releases             (default 0.15)
+//   --min-hold-ms <ms> shortest time a brake stays engaged       (default 120)
+//   --no-ring-brake   leave the ring brake alone (by default it follows the
+//                     pinky, which drives the LEAP's ring finger)
+//   --list-brakes     print the glove's brakes and the fingers they resist, exit
+//   --brake-test      engage each finger's brake in turn, exit
 //   --help
 //
 // The IK uses the Dashboard's active user profile; without one it falls back to
@@ -52,18 +68,24 @@
 #include <HaptxApi/alternate_hand_ik.h>
 #include <HaptxApi/anim_frame.h>
 #include <HaptxApi/default_hand_ik.h>
+#include <HaptxApi/direct_pneumatic_calculator.h>
 #include <HaptxApi/enum.h>
+#include <HaptxApi/force_actuator.h>
 #include <HaptxApi/glove.h>
+#include <HaptxApi/haptic_frame.h>
 #include <HaptxApi/haptx_system.h>
 #include <HaptxApi/logging.h>
 #include <HaptxApi/mocap_frame.h>
 #include <HaptxApi/mocap_system.h>
 #include <HaptxApi/names.h>
 #include <HaptxApi/peripheral.h>
+#include <HaptxApi/pneumatic_frame.h>
+#include <HaptxApi/tactor.h>
 #include <HaptxApi/user_profile.h>
 #include <HaptxApi/user_profile_database.h>
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <chrono>
 #include <cmath>
@@ -76,6 +98,7 @@
 #include <string>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
 using namespace HaptxApi;
 
@@ -98,6 +121,15 @@ struct Options {
   int port = 9871;
   double rate_hz = 90.0;
   bool quiet = false;
+  bool feedback = false;
+  int feedback_port = 9873;
+  float engage = 0.30f;
+  float release = 0.15f;
+  int min_hold_ms = 120;
+  int feedback_timeout_ms = 300;
+  bool ring_brake = true;
+  bool list_brakes = false;
+  bool brake_test = false;
 };
 
 void printUsage() {
@@ -110,6 +142,14 @@ void printUsage() {
       "  --port <n>        UDP port                                 (default 9871)\n"
       "  --rate <hz>       frames per second                        (default 90)\n"
       "  --quiet           no live angle table\n"
+      "  --feedback        engage the finger brakes from leap_hand_node.py's effort\n"
+      "  --feedback-port <n>  UDP port for that effort                (default 9873)\n"
+      "  --engage <0-1>    effort that engages a finger's brake       (default 0.30)\n"
+      "  --release <0-1>   effort below which it releases             (default 0.15)\n"
+      "  --min-hold-ms <ms> shortest time a brake stays engaged       (default 120)\n"
+      "  --no-ring-brake   leave the ring brake alone (default: it follows the pinky)\n"
+      "  --list-brakes     print the glove's brakes and the fingers they resist, exit\n"
+      "  --brake-test      engage each finger's brake in turn, exit\n"
       "  --help\n");
 }
 
@@ -155,6 +195,22 @@ bool parseArgs(int argc, char** argv, Options* options) {
       options->rate_hz = atof(argv[++i]);
     } else if (strcmp(arg, "--quiet") == 0) {
       options->quiet = true;
+    } else if (strcmp(arg, "--feedback") == 0) {
+      options->feedback = true;
+    } else if (strcmp(arg, "--feedback-port") == 0 && has_value) {
+      options->feedback_port = atoi(argv[++i]);
+    } else if (strcmp(arg, "--engage") == 0 && has_value) {
+      options->engage = static_cast<float>(atof(argv[++i]));
+    } else if (strcmp(arg, "--release") == 0 && has_value) {
+      options->release = static_cast<float>(atof(argv[++i]));
+    } else if (strcmp(arg, "--min-hold-ms") == 0 && has_value) {
+      options->min_hold_ms = atoi(argv[++i]);
+    } else if (strcmp(arg, "--no-ring-brake") == 0) {
+      options->ring_brake = false;
+    } else if (strcmp(arg, "--list-brakes") == 0) {
+      options->list_brakes = true;
+    } else if (strcmp(arg, "--brake-test") == 0) {
+      options->brake_test = true;
     } else if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
       printUsage();
       return false;
@@ -171,6 +227,15 @@ bool parseArgs(int argc, char** argv, Options* options) {
   }
   if (options->rate_hz <= 0.0 || options->rate_hz > 500.0) {
     printf("--rate must be between 0 and 500.\n");
+    return false;
+  }
+  if (options->feedback_port <= 0 || options->feedback_port > 65535) {
+    printf("--feedback-port must be 1-65535.\n");
+    return false;
+  }
+  if (!(options->release >= 0.0f && options->release < options->engage &&
+        options->engage <= 1.0f)) {
+    printf("Need 0 <= --release < --engage <= 1.\n");
     return false;
   }
   return true;
@@ -224,6 +289,194 @@ class UdpSender {
   bool started_ = false;
   sockaddr_in destination_ = {};
 };
+
+// Receives leap_hand_node.py's effort, one datagram per reading:
+//   LFB,<hand L|R>,<seq>,<thumb>,<index>,<middle>,<ring>
+// 0..1 per LEAP finger: how hard it pushes against something.
+class FeedbackReceiver {
+ public:
+  ~FeedbackReceiver() {
+    if (socket_ != INVALID_SOCKET) {
+      closesocket(socket_);
+    }
+    if (started_) {
+      WSACleanup();
+    }
+  }
+
+  bool open(int port) {
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+      printf("WSAStartup failed.\n");
+      return false;
+    }
+    started_ = true;
+    socket_ = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (socket_ == INVALID_SOCKET) {
+      printf("socket() failed: %d\n", WSAGetLastError());
+      return false;
+    }
+    sockaddr_in address = {};
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_port = htons(static_cast<u_short>(port));
+    if (bind(socket_, reinterpret_cast<sockaddr*>(&address), sizeof(address)) != 0) {
+      printf("bind() to UDP port %d failed: %d. Is another copy running?\n", port,
+             WSAGetLastError());
+      return false;
+    }
+    u_long non_blocking = 1;
+    ioctlsocket(socket_, FIONBIO, &non_blocking);
+    return true;
+  }
+
+  // Drains the queue and keeps the newest reading for `hand_letter`. Returns
+  // true if one arrived since the last call.
+  bool poll(char hand_letter, std::array<float, 4>* effort) {
+    bool got = false;
+    for (;;) {
+      const int n = recv(socket_, buffer_, sizeof(buffer_) - 1, 0);
+      if (n <= 0) {
+        break;  // WSAEWOULDBLOCK: nothing more queued.
+      }
+      buffer_[n] = '\0';
+      char hand = 0;
+      unsigned long seq = 0;
+      std::array<float, 4> e = {};
+      if (sscanf(buffer_, "LFB,%c,%lu,%f,%f,%f,%f", &hand, &seq, &e[0], &e[1], &e[2], &e[3]) != 6) {
+        continue;
+      }
+      if (hand != hand_letter) {
+        wrong_hand++;
+        continue;
+      }
+      for (float& v : e) {
+        v = std::isfinite(v) ? std::max(0.0f, std::min(1.0f, v)) : 0.0f;
+      }
+      *effort = e;
+      got = true;
+    }
+    return got;
+  }
+
+  int wrong_hand = 0;
+
+ private:
+  SOCKET socket_ = INVALID_SOCKET;
+  bool started_ = false;
+  char buffer_[512];
+};
+
+// ---------------------------------------------------------------------------
+// Force-feedback brakes
+// ---------------------------------------------------------------------------
+
+// One of the glove's ForceActuators and the fingers it resists, read from its
+// restrictions (the body parts it holds back).
+struct Brake {
+  int id = 0;
+  std::array<bool, F_LAST> fingers = {};
+};
+
+std::vector<Brake> mapBrakes(const Peripheral& peripheral) {
+  std::vector<Brake> brakes;
+  for (const ForceActuator& actuator : peripheral.force_actuators) {
+    if (!actuator.isEnabled()) {
+      continue;
+    }
+    Brake brake;
+    brake.id = actuator.getId();
+    for (const auto& restriction : actuator.getRestrictions()) {
+      const Finger finger = getFinger(restriction.first);
+      if (finger < F_LAST) {
+        brake.fingers[finger] = true;
+      }
+    }
+    brakes.push_back(brake);
+  }
+  return brakes;
+}
+
+void listBrakes(const Peripheral& peripheral) {
+  printf("\nForce-feedback brakes on this glove:\n");
+  if (peripheral.force_actuators.empty()) {
+    printf("  none\n");
+    return;
+  }
+  printf("  id  enabled  port  valve  engage [kPa]  resists\n");
+  for (const ForceActuator& actuator : peripheral.force_actuators) {
+    std::string parts;
+    for (const auto& restriction : actuator.getRestrictions()) {
+      parts += (parts.empty() ? "" : ", ") + getName(restriction.first).getText();
+    }
+    printf("  %2d  %-7s  %4d  %5d  %12.1f  %s\n", actuator.getId(),
+           actuator.isEnabled() ? "yes" : "no", actuator.getPort(), actuator.getValveId(),
+           actuator.getActuationPressurePa() / 1000.0f, parts.empty() ? "-" : parts.c_str());
+  }
+}
+
+// Renders one frame: every brake ENGAGED or DISENGAGED, and every tactor at
+// its minimum height, so the frame fully describes the hardware state (as in
+// fsr_fingertip.cpp -- don't run both at once, they would fight over it).
+bool renderBrakes(Airpack& airpack, const Peripheral& peripheral, const std::vector<Brake>& brakes,
+                  const std::array<bool, F_LAST>& engaged) {
+  HapticFrame haptic_frame;
+  for (const Tactor& tactor : peripheral.tactors) {
+    haptic_frame.tactor_heights_m[tactor.getId()] = tactor.getMinHeightM();
+  }
+  for (const ForceActuator& actuator : peripheral.force_actuators) {
+    haptic_frame.force_actuator_states[actuator.getId()] = PassiveForceActuator::State::DISENGAGED;
+  }
+  for (const Brake& brake : brakes) {
+    for (unsigned int finger = 0; finger < F_LAST; finger++) {
+      if (brake.fingers[finger] && engaged[finger]) {
+        haptic_frame.force_actuator_states[brake.id] = PassiveForceActuator::State::ENGAGED;
+      }
+    }
+  }
+  PneumaticFrame pneumatic_frame;
+  if (!DirectPneumaticCalculator::addToPneumaticFrame(peripheral, haptic_frame, airpack,
+                                                      &pneumatic_frame)) {
+    printf("\nDirectPneumaticCalculator::addToPneumaticFrame() failed.\n");
+    return false;
+  }
+  if (auto ret = airpack.render(pneumatic_frame); !ret) {
+    printf("\nAirpack::render() returned %s.\n", toString(ret.error()).c_str());
+    return false;
+  }
+  return true;
+}
+
+// Engages each finger's brake in turn so the mapping can be felt.
+void brakeTest(Airpack& airpack, const Peripheral& peripheral, const std::vector<Brake>& brakes) {
+  using Clock = std::chrono::steady_clock;
+  printf("\nBrake test: each finger's brake engages for 2 s. Open your hand, then try to\n"
+         "close the named finger while it is on -- it should stop.\n\n");
+  const std::array<bool, F_LAST> none = {};
+  for (unsigned int finger = 0; finger < F_LAST && !g_interrupted; finger++) {
+    bool has_brake = false;
+    for (const Brake& brake : brakes) {
+      has_brake = has_brake || brake.fingers[finger];
+    }
+    if (!has_brake) {
+      printf("  %-7s no brake\n", FINGER_NAMES[finger]);
+      continue;
+    }
+    std::array<bool, F_LAST> engaged = {};
+    engaged[finger] = true;
+    printf("  %-7s ON ... ", FINGER_NAMES[finger]);
+    std::flush(std::cout);
+    const Clock::time_point end = Clock::now() + std::chrono::seconds(2);
+    while (Clock::now() < end && !g_interrupted) {
+      renderBrakes(airpack, peripheral, brakes, engaged);
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+    renderBrakes(airpack, peripheral, brakes, none);
+    printf("off\n");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
+  renderBrakes(airpack, peripheral, brakes, none);
+}
 
 // ---------------------------------------------------------------------------
 // Angles
@@ -335,6 +588,32 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  const std::vector<Brake> brakes = mapBrakes(*glove);
+  if (options.list_brakes || options.brake_test) {
+    listBrakes(*glove);
+    if (options.brake_test) {
+      brakeTest(*airpack, *glove, brakes);
+    }
+    mocap_system->shutdown();
+    airpack->shutdown();
+    return 0;
+  }
+
+  FeedbackReceiver feedback;
+  if (options.feedback) {
+    if (brakes.empty()) {
+      printf("This glove reports no enabled force-feedback brakes -- --feedback is off.\n");
+      options.feedback = false;
+    } else if (!feedback.open(options.feedback_port)) {
+      mocap_system->shutdown();
+      airpack->shutdown();
+      return 1;
+    } else {
+      printf("Brakes from leap_hand_node.py on UDP %d: engage at %.2f, release below %.2f.\n",
+             options.feedback_port, options.engage, options.release);
+    }
+  }
+
   // The IK needs hand geometry; a default profile works but is less accurate.
   UserProfile profile;
   if (auto username = UserProfileDatabase::getActiveUsername(); username) {
@@ -384,6 +663,17 @@ int main(int argc, char** argv) {
                                                : "AlternateHandIk, no legacy blend";
   printf("IK: %s\n\n", ik_name);
 
+  // Brake state per human finger. The LEAP's ring finger is driven by the
+  // pinky, so its effort lands on the pinky (and the ring, which closes with it).
+  std::array<float, 4> leap_effort = {};
+  std::array<float, F_LAST> effort = {};
+  std::array<bool, F_LAST> engaged = {};
+  std::array<Clock::time_point, F_LAST> engaged_since = {};
+  Clock::time_point last_feedback = start - std::chrono::hours(1);
+  const auto feedback_timeout = std::chrono::milliseconds(options.feedback_timeout_ms);
+  const auto min_hold = std::chrono::milliseconds(options.min_hold_ms);
+  bool brakes_ok = !options.feedback || renderBrakes(*airpack, *glove, brakes, engaged);
+
   while (!g_interrupted) {
     // MOCAP_SOLVER_ERROR, MOCAP_BAD_SENSOR_DATA and NOT_READY are intermittent;
     // the frame below simply carries whatever the system still has.
@@ -424,6 +714,34 @@ int main(int argc, char** argv) {
     }
     sender.send(std::string(buffer, static_cast<size_t>(length)));
 
+    if (options.feedback) {
+      const Clock::time_point t = Clock::now();
+      if (feedback.poll(hand_letter, &leap_effort)) {
+        last_feedback = t;
+      }
+      const bool fresh = t - last_feedback <= feedback_timeout;
+      effort = {};
+      if (fresh) {
+        effort[F_THUMB] = leap_effort[0];
+        effort[F_INDEX] = leap_effort[1];
+        effort[F_MIDDLE] = leap_effort[2];
+        effort[F_PINKY] = leap_effort[3];
+        effort[F_RING] = options.ring_brake ? leap_effort[3] : 0.0f;
+      }
+      for (unsigned int finger = 0; finger < F_LAST; finger++) {
+        if (!fresh) {
+          engaged[finger] = false;  // no word from the hand: never leave a finger locked
+        } else if (!engaged[finger] && effort[finger] >= options.engage) {
+          engaged[finger] = true;
+          engaged_since[finger] = t;
+        } else if (engaged[finger] && effort[finger] < options.release &&
+                   t - engaged_since[finger] >= min_hold) {
+          engaged[finger] = false;
+        }
+      }
+      brakes_ok = renderBrakes(*airpack, *glove, brakes, engaged);
+    }
+
     const Clock::time_point now = Clock::now();
     if (!options.quiet && std::chrono::duration<double>(now - last_table).count() >= 0.1) {
       if (lines_drawn > 0) {
@@ -453,6 +771,21 @@ int main(int argc, char** argv) {
       printf("  sent %-8lu  mocap frame fail %-5d  ik fail %-5d\n", seq, frame_failures,
              ik_failures);
       lines_drawn = F_LAST + 2;
+      if (options.feedback) {
+        const double age_ms =
+            std::chrono::duration<double, std::milli>(now - last_feedback).count();
+        printf("  brakes ");
+        for (unsigned int finger = 0; finger < F_LAST; finger++) {
+          printf(" %c %.2f%s", FINGER_NAMES[finger][0], effort[finger], engaged[finger] ? "#" : " ");
+        }
+        if (age_ms > options.feedback_timeout_ms) {
+          printf("   no effort from leap_hand_node.py -- released%s     \n",
+                 brakes_ok ? "" : ", RENDER FAILED");
+        } else {
+          printf("   (# = engaged)%s                \n", brakes_ok ? "" : "  RENDER FAILED");
+        }
+        lines_drawn++;
+      }
       std::flush(std::cout);
       last_table = now;
     }
@@ -465,6 +798,9 @@ int main(int argc, char** argv) {
   }
 
   printf("\nStopping.\n");
+  if (options.feedback) {
+    renderBrakes(*airpack, *glove, brakes, {});  // release every brake
+  }
   mocap_system->shutdown();
   airpack->shutdown();
   return 0;

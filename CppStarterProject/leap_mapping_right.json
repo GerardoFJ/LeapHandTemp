@@ -1,0 +1,319 @@
+{
+  "_doc": [
+    "Written by leap_calibrate.py -- rerun it rather than editing by hand",
+    "(./leap_calibrate.py --hand right --from-raw leap_calib_raw_right.json re-fits without the glove).",
+    "LEAP target [rad, sim convention: 0 = flat] = offset + sum(gain * feature).",
+    "A feature is one glove joint's rotation [rad] about 'axis', measured from 'rest',",
+    "the joint orientations of the calibration's open pose.",
+    "The LEAP ring finger follows the human pinky."
+  ],
+  "smoothing": 0.35,
+  "max_speed_rad_s": 8.0,
+  "calibration": {
+    "date": "2026-10-21T14:04:37",
+    "hand": "right",
+    "poses": [
+      "open",
+      "fist",
+      "spread",
+      "thumb_side",
+      "thumb_forward",
+      "thumb_curl",
+      "pinch_index",
+      "pinch_middle",
+      "pinch_pinky"
+    ]
+  },
+  "rest": {
+    "thumb": [
+      [
+        0.956182,
+        0.134615,
+        0.179555,
+        0.188029
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.971477,
+        0.0,
+        -0.237134,
+        0.0
+      ]
+    ]
+  },
+  "features": {
+    "thumb.base1": {
+      "finger": "thumb",
+      "joint": 0,
+      "axis": [
+        -0.28123,
+        0.86121,
+        0.42335
+      ]
+    },
+    "thumb.base2": {
+      "finger": "thumb",
+      "joint": 0,
+      "axis": [
+        0.05558,
+        -0.4258,
+        0.90311
+      ]
+    },
+    "thumb.bend2": {
+      "finger": "thumb",
+      "joint": 1,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    "thumb.bend3": {
+      "finger": "thumb",
+      "joint": 2,
+      "axis": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  },
+  "joints": [
+    {
+      "id": 0,
+      "mjcf": "if_rot",
+      "offset": -0.0985,
+      "inputs": [
+        {
+          "finger": "index",
+          "channel": "add",
+          "gain": -0.8785
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "mjcf": "if_mcp",
+      "offset": 0.0482,
+      "inputs": [
+        {
+          "finger": "index",
+          "channel": "mcp",
+          "gain": -2.3034
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "mjcf": "if_pip",
+      "offset": 0.1637,
+      "inputs": [
+        {
+          "finger": "index",
+          "channel": "pip",
+          "gain": -1.1511
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "mjcf": "if_dip",
+      "offset": 0.0789,
+      "inputs": [
+        {
+          "finger": "index",
+          "channel": "dip",
+          "gain": -1.1612
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "mjcf": "mf_rot",
+      "offset": 0.0,
+      "inputs": []
+    },
+    {
+      "id": 5,
+      "mjcf": "mf_mcp",
+      "offset": 0.0822,
+      "inputs": [
+        {
+          "finger": "middle",
+          "channel": "mcp",
+          "gain": -2.0585
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "mjcf": "mf_pip",
+      "offset": 0.1148,
+      "inputs": [
+        {
+          "finger": "middle",
+          "channel": "pip",
+          "gain": -0.9839
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "mjcf": "mf_dip",
+      "offset": 0.0567,
+      "inputs": [
+        {
+          "finger": "middle",
+          "channel": "dip",
+          "gain": -0.9616
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "mjcf": "rf_rot",
+      "offset": -0.2337,
+      "inputs": [
+        {
+          "finger": "pinky",
+          "channel": "add",
+          "gain": -0.8872
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "mjcf": "rf_mcp",
+      "offset": 0.1745,
+      "inputs": [
+        {
+          "finger": "pinky",
+          "channel": "mcp",
+          "gain": -1.0072
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "mjcf": "rf_pip",
+      "offset": 0.2248,
+      "inputs": [
+        {
+          "finger": "pinky",
+          "channel": "pip",
+          "gain": -1.0478
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "mjcf": "rf_dip",
+      "offset": 0.1029,
+      "inputs": [
+        {
+          "finger": "pinky",
+          "channel": "dip",
+          "gain": -1.046
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "mjcf": "th_cmc",
+      "offset": 0.2388,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": 2.3741
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": 0.4852
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 1.0333
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.7628
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "mjcf": "th_axl",
+      "offset": 0.024,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": -0.1177
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": -1.0811
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": -0.4323
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.0511
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "mjcf": "th_mcp",
+      "offset": 0.0056,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": -0.6335
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": -0.0095
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 1.1825
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": 0.3703
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "mjcf": "th_ipl",
+      "offset": -0.0141,
+      "inputs": [
+        {
+          "feature": "thumb.base1",
+          "gain": 0.4279
+        },
+        {
+          "feature": "thumb.base2",
+          "gain": -0.6232
+        },
+        {
+          "feature": "thumb.bend2",
+          "gain": 0.5385
+        },
+        {
+          "feature": "thumb.bend3",
+          "gain": -0.1298
+        }
+      ]
+    }
+  ]
+}

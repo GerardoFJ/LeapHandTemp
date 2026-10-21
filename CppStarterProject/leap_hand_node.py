@@ -20,6 +20,18 @@ On this side:
   * if the stream stops for --timeout the hand holds where it is;
   * on Ctrl-C it opens the hand slowly, then turns the torque off.
 
+Effort feedback (for the glove's finger brakes, haptx_hand_stream.exe --feedback):
+the hand has no torque sensors, but in current-based position control a
+finger that is held short of its target by an object draws more current, up
+to --current-limit. Per finger, the effort is the largest of its closing
+joints' (current - --free-current) / (--current-limit - --free-current),
+counted only while the joint is more than --min-lag behind its command and
+nearly still (so the current of plain motion does not count). It goes back to
+whoever sends the targets:
+    LFB,<L|R>,<seq>,<thumb>,<index>,<middle>,<ring>      0..1 each, UDP 9873
+--log writes everything behind it to a CSV, and --probe closes the hand on an
+object by itself, to measure what grasping looks like without the glove.
+
 Setup on the LEAP PC (only this file is needed from the glove side):
     pip install numpy dynamixel_sdk
     git clone https://github.com/leap-hand/LEAP_Hand_API ~/LEAP_Hand_API
@@ -29,6 +41,7 @@ Usage:
     ./leap_hand_node.py --hand right --check     # first time: check each joint's direction
     ./leap_hand_node.py --hand right             # listen for leap_teleop.py on UDP 9872
     ./leap_hand_node.py --hand right --allow 192.168.1.20 --flip 0,4,8
+    ./leap_hand_node.py --hand right --probe --log grasp.csv   # measure grasps, no glove
 """
 
 import argparse
@@ -48,6 +61,17 @@ SIDE = [0, 4, 8]
 
 HANDS = {"left": "L", "right": "R"}
 FINGER = {"if": "index", "mf": "middle", "rf": "ring"}
+
+# The joints that close each LEAP finger on an object, in motor IDs: MCP
+# forward, PIP, DIP; for the thumb th_cmc (into the palm), th_mcp, th_ipl.
+# Side-to-side joints and the thumb's twist don't count.
+LEAP_FINGERS = ["thumb", "index", "middle", "ring"]
+CLOSING = {"thumb": [12, 14, 15], "index": [1, 2, 3], "middle": [5, 6, 7], "ring": [9, 10, 11]}
+
+# --probe closes on this (sim convention): a full fist, thumb across.
+GRASP = np.zeros(16)
+GRASP[[1, 5, 9]], GRASP[[2, 6, 10]], GRASP[[3, 7, 11]] = 1.5, 1.6, 1.1
+GRASP[12], GRASP[14], GRASP[15] = 1.4, 0.9, 0.6
 
 
 def hints(hand):
@@ -164,9 +188,81 @@ class RealLeap:
     def read_current(self):
         return np.asarray(self.client.read_cur(), dtype=float)
 
+    def read_state(self):
+        """One bus read: position [rad], velocity [rad/s] and the current
+        pushing each joint toward a larger sim angle (= closing) [mA]."""
+        pos, vel, cur = self.client.read_pos_vel_cur()
+        return (self.to_sim(pos), self.sign * np.asarray(vel, float),
+                self.sign * np.asarray(cur, float))
+
+    def command_sim(self):
+        return self.to_sim(self.command)
+
     def close(self):
         # DynamixelClient.disconnect() turns the torque off: the fingers go limp.
         self.client.disconnect()
+
+
+# -------------------------------------------------------------------- effort
+class EffortEstimator:
+    """How hard each LEAP finger pushes against something, 0..1."""
+
+    def __init__(self, current_limit, free_ma=120.0, min_lag=0.08, still=1.0):
+        self.limit, self.free, self.min_lag, self.still = current_limit, free_ma, min_lag, still
+        self.history = []              # last 3 raw readings, for a median against spikes
+        self.joint = np.zeros(N_JOINTS)
+        self.effort = np.zeros(len(LEAP_FINGERS))
+
+    def update(self, command, pos, vel, cur):
+        lag = command - pos            # > 0: held back from closing
+        active = (lag > self.min_lag) & (np.abs(vel) < self.still)
+        raw = np.clip((cur - self.free) / max(self.limit - self.free, 1.0), 0.0, 1.0)
+        self.joint = np.where(active, raw, 0.0)
+        reading = np.array([self.joint[CLOSING[f]].max() for f in LEAP_FINGERS])
+        self.history = (self.history + [reading])[-3:]
+        self.effort = np.median(np.array(self.history), axis=0)
+        return self.effort
+
+
+class FeedbackSender:
+    def __init__(self, port, hand):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.port, self.hand, self.seq = port, HANDS[hand], 0
+
+    def send(self, host, effort):
+        msg = f"LFB,{self.hand},{self.seq}," + ",".join(f"{e:.3f}" for e in effort)
+        try:
+            self.sock.sendto(msg.encode("ascii"), (host, self.port))
+        except OSError:
+            pass
+        self.seq += 1
+
+
+class StateLog:
+    """CSV of everything behind the effort, one row per reading."""
+
+    def __init__(self, path):
+        self.fh = open(path, "w")
+        cols = ["t", "phase"]
+        for kind in ("target", "command", "pos", "vel", "cur"):
+            cols += [f"{kind}_{n}" for n in NAMES]
+        cols += [f"effort_{f}" for f in LEAP_FINGERS]
+        self.fh.write(",".join(cols) + "\n")
+        self.t0 = time.monotonic()
+        print(f"logging to {path}")
+
+    def write(self, phase, target, command, pos, vel, cur, effort):
+        target = np.full(N_JOINTS, np.nan) if target is None else target
+        values = np.concatenate([target, command, pos, vel, cur, effort])
+        self.fh.write(f"{time.monotonic() - self.t0:.4f},{phase},"
+                      + ",".join(f"{v:.4f}" for v in values) + "\n")
+
+    def close(self):
+        self.fh.close()
+
+
+def effort_text(effort):
+    return " ".join(f"{f[0].upper()} {e:.2f}" for f, e in zip(LEAP_FINGERS, effort))
 
 
 # ------------------------------------------------------------------- network
@@ -260,6 +356,39 @@ def run_check(hand, speed, which):
     print("\ndone.")
 
 
+def run_probe(hand, estimator, log, rate, speed=0.8):
+    """Close the hand on whatever is in it, hold, open; report per finger."""
+    print("\nProbe: put an object where the fingers close (or nothing, for the free\n"
+          "baseline). The hand closes slowly into a fist, holds 2 s and opens.\n")
+    period = 1.0 / rate
+    n = 0
+    while True:
+        answer = input("  Enter = close   q = quit > ").strip().lower()
+        if answer == "q":
+            return
+        n += 1
+        peak_effort = np.zeros(len(LEAP_FINGERS))
+        peak_cur = np.zeros(len(LEAP_FINGERS))
+        for phase, target, secs in ((f"close{n}", GRASP, 3.5), (f"hold{n}", GRASP, 2.0),
+                                    (f"open{n}", np.zeros(N_JOINTS), 3.0)):
+            end = time.monotonic() + secs
+            while time.monotonic() < end:
+                t = time.monotonic()
+                hand.send(target, speed * period)
+                pos, vel, cur = hand.read_state()
+                effort = estimator.update(hand.command_sim(), pos, vel, cur)
+                if log:
+                    log.write(phase, target, hand.command_sim(), pos, vel, cur, effort)
+                if not phase.startswith("open"):
+                    peak_effort = np.maximum(peak_effort, effort)
+                    peak_cur = np.maximum(peak_cur, [cur[CLOSING[f]].max() for f in LEAP_FINGERS])
+                print(f"\r    {phase:<7} effort {effort_text(effort)}   ", end="", flush=True)
+                time.sleep(max(0.0, period - (time.monotonic() - t)))
+        print("\n    peak effort  " + effort_text(peak_effort))
+        print("    peak current " + " ".join(f"{f[0].upper()} {c:4.0f}"
+                                            for f, c in zip(LEAP_FINGERS, peak_cur)) + " mA")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -278,6 +407,22 @@ def main():
                          "or just turn it off")
     ap.add_argument("--check", action="store_true",
                     help="move one joint at a time to check directions, then exit")
+    fb = ap.add_argument_group("effort feedback")
+    fb.add_argument("--feedback-port", type=int, default=9873,
+                    help="UDP port on the target sender's PC (haptx_hand_stream.exe --feedback)")
+    fb.add_argument("--no-feedback", action="store_true", help="don't send the effort back")
+    fb.add_argument("--feedback-rate", type=float, default=30.0,
+                    help="motor reads per second for the effort [Hz] (default 30; LEAP "
+                         "suggests staying under 90 bus queries/s)")
+    fb.add_argument("--free-current", type=float, default=120.0,
+                    help="mA a joint may draw without counting as pushing (default 120)")
+    fb.add_argument("--min-lag", type=float, default=0.08,
+                    help="rad a joint must be behind its command to count (default 0.08)")
+    fb.add_argument("--still", type=float, default=1.0,
+                    help="rad/s above which a joint counts as moving, not pushing (default 1)")
+    fb.add_argument("--log", metavar="CSV", help="log targets, positions, currents and effort")
+    fb.add_argument("--probe", action="store_true",
+                    help="close the hand on an object by itself and report the effort, exit")
     hw = ap.add_argument_group("hardware")
     hw.add_argument("--serial", help="port (default: the FTDI in /dev/serial/by-id, "
                                      "then /dev/ttyUSB0, /dev/ttyUSB1)")
@@ -304,16 +449,24 @@ def main():
                     args.kp, args.kd, flip)
     if flip:
         print("flipped: " + ", ".join(f"{i} {NAMES[i]}" for i in flip))
+    estimator = EffortEstimator(args.current_limit, args.free_current, args.min_lag, args.still)
+    log = StateLog(args.log) if args.log else None
     try:
         if args.check:
             run_check(hand, speed=1.0, which=args.hand)
             return
+        if args.probe:
+            run_probe(hand, estimator, log, args.feedback_rate)
+            return
         rx = TargetReceiver(args.port, args.hand, args.allow)
+        feedback = None if args.no_feedback else FeedbackSender(args.feedback_port, args.hand)
         ips = os.popen("hostname -I 2>/dev/null").read().split()
         print(f"listening on UDP {args.port}  (this PC: {', '.join(ips) or 'see ip addr'})\n"
               f"on the glove PC:  ./leap_teleop.py --hand {args.hand} "
               f"--send {ips[0] if ips else '<this ip>'}")
         period = 1.0 / args.rate
+        read_period = 1.0 / args.feedback_rate
+        next_read = 0.0
         last_status = 0.0
         frames_at_status = 0
         was_live = False
@@ -327,20 +480,30 @@ def main():
                 print(f"\nstream silent for {args.timeout}s -- holding")
             was_live = live
 
+            if now >= next_read:
+                next_read = now + read_period
+                pos, vel, cur = hand.read_state()
+                effort = estimator.update(hand.command_sim(), pos, vel, cur)
+                if feedback is not None and rx.sender is not None:
+                    feedback.send(rx.sender, effort)
+                if log:
+                    log.write("live" if live else "hold", rx.target, hand.command_sim(),
+                              pos, vel, cur, effort)
+
             if now - last_status >= 1.0:
                 rate = (rx.count - frames_at_status) / max(now - last_status, 1e-6)
                 frames_at_status, last_status = rx.count, now
-                current = np.abs(hand.read_current())
                 state = f"live from {rx.sender}" if live else \
                     ("holding" if rx.target is not None else "waiting for leap_teleop.py")
-                print(f"\r  {state:<32} {rate:5.1f} frames/s   "
-                      f"max current {current.max():5.0f} mA ({NAMES[int(current.argmax())]})"
+                print(f"\r  {state:<30} {rate:5.1f} frames/s   effort {effort_text(estimator.effort)}"
                       f"   ignored {rx.ignored}   ", end="", flush=True)
             time.sleep(max(0.0, period - (time.monotonic() - now)))
     except KeyboardInterrupt:
         pass
     finally:
         print()
+        if log:
+            log.close()
         if args.on_exit == "open":
             open_and_release(hand)
         else:
