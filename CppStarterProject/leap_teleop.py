@@ -48,20 +48,22 @@ import sys
 import time
 
 import numpy as np
-
+####
 HOME = os.path.expanduser("~")
 HERE = os.path.dirname(os.path.abspath(__file__))
 MENAGERIE = os.path.join(HOME, "LEAP_Development/mujoco_menagerie/leap_hand")
+#### things for mujoco
 HANDS = {"left": "L", "right": "R"}
 
 # LEAP motor IDs 0-15, as Menagerie names the joints.
 LEAP_JOINTS = ["if_rot", "if_mcp", "if_pip", "if_dip", "mf_rot", "mf_mcp", "mf_pip", "mf_dip",
                "rf_rot", "rf_mcp", "rf_pip", "rf_dip", "th_cmc", "th_axl", "th_mcp", "th_ipl"]
 
-
+#### Mujoco things
 def default_model(hand):
     return os.path.join(MENAGERIE, f"scene_{hand}.xml")
 
+#####################
 
 def default_config(hand):
     """The left hand keeps the original file names; the right hand gets its own."""
