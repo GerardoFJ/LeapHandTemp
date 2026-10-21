@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Teleoperate a LEAP Hand from the HaptX glove: MuJoCo always, plus the real hand
-on another PC (--send) or plugged into this one (--real).
+Teleoperate a LEAP Hand from the HaptX glove: MuJoCo (unless --no-viewer), plus
+the real hand on another PC (--send) or plugged into this one (--real).
 
     glove -> haptx_hand_stream.exe (Wine) --UDP 9871--> leap_teleop.py -> MuJoCo viewer
                                      --send: --UDP 9872--> leap_hand_node.py -> LEAP Hand
@@ -36,6 +36,7 @@ Usage:
     ./leap_calibrate.py                 # fit leap_mapping.json to your hand (do this first)
     ./leap_teleop.py --send 192.168.1.50   # + the hand on the PC running leap_hand_node.py
     ./leap_teleop.py --real             # + a hand plugged in here (leap_hand_node.py's code)
+    ./leap_teleop.py --real --no-viewer # the real hand only, no MuJoCo (mujoco not needed)
 """
 
 import argparse
@@ -354,6 +355,19 @@ class SimLeap:
             self.viewer.sync()
 
 
+class NoSim:
+    """Stands in for SimLeap with --no-viewer, so mujoco is never imported. The
+    real hand does not need the sim: RealLeap clips to LEAP_Hand_API's limits."""
+
+    viewer = None
+
+    def running(self):
+        return True
+
+    def step(self, sim_target, wall_dt):
+        pass
+
+
 # ---------------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
@@ -366,7 +380,8 @@ def main():
     ap.add_argument("--model", help="LEAP hand MJCF scene (default: Menagerie's, for --hand)")
     ap.add_argument("--fake", action="store_true", help="synthetic glove, no stream needed")
     ap.add_argument("--monitor", action="store_true", help="print human angles and LEAP targets")
-    ap.add_argument("--no-viewer", action="store_true", help="no MuJoCo window")
+    ap.add_argument("--no-viewer", action="store_true",
+                    help="no MuJoCo at all (no window, mujoco not needed)")
     ap.add_argument("--rate", type=float, default=60.0, help="control loop rate [Hz]")
     ap.add_argument("--timeout", type=float, default=0.5,
                     help="glove silence [s] after which the hand holds its pose")
@@ -390,8 +405,11 @@ def main():
     if not os.path.exists(config):
         sys.exit(f"no mapping at {config} -- run ./leap_calibrate.py --hand {args.hand} first")
     mapping = Mapping(config)
-    sim = SimLeap(args.model or default_model(args.hand))
-    sim.bind(mapping.names)
+    if args.no_viewer:
+        sim = NoSim()
+    else:
+        sim = SimLeap(args.model or default_model(args.hand))
+        sim.bind(mapping.names)
     glove = FakeGlove() if args.fake else GloveStream(args.port, args.hand)
     leap = None
     if args.real:
