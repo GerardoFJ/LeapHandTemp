@@ -1,0 +1,21 @@
+# ninja log v5
+0	14	1792743831659109355	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-mkdir	35910e6e3bfac544
+0	14	1792743831659109355	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-mkdir	35910e6e3bfac544
+14	1419	1792743833064130316	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-download	fcb33659de8cb09f
+14	1419	1792743833064130316	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-download	fcb33659de8cb09f
+1419	1432	0	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-update	de0ed03fcc85da6a
+1419	1432	0	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-update	de0ed03fcc85da6a
+1432	1445	1792743833090130703	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-patch	bcb80928850fd87d
+1432	1445	1792743833090130703	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-patch	bcb80928850fd87d
+1445	1458	1792743833103130897	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-configure	4acd0390c14aecdb
+1445	1458	1792743833103130897	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-configure	4acd0390c14aecdb
+1458	1471	1792743833115131076	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-build	22ad2ace9153272e
+1458	1471	1792743833115131076	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-build	22ad2ace9153272e
+1471	1484	1792743833129131285	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-install	604a57d7443c1515
+1471	1484	1792743833129131285	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-install	604a57d7443c1515
+1484	1498	1792743833143131494	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-test	3235c02e1692e76c
+1484	1498	1792743833143131494	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-test	3235c02e1692e76c
+1498	1514	1792743833160131748	CMakeFiles/yaml-cpp-populate-complete	ecc75f00facec238
+1498	1514	1792743833160131748	yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-done	ecc75f00facec238
+1498	1514	1792743833160131748	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/CMakeFiles/yaml-cpp-populate-complete	ecc75f00facec238
+1498	1514	1792743833160131748	/workdir/HaptXProject/build-win/_deps/yaml-cpp-subbuild/yaml-cpp-populate-prefix/src/yaml-cpp-populate-stamp/yaml-cpp-populate-done	ecc75f00facec238
