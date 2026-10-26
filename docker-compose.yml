@@ -18,7 +18,8 @@ services:
       - /run/udev:/run/udev:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTH_DIR:-/run/user/1000/gdm}:/root/.xauth:ro
-      - ./workdir:/workdir
+      - ./HaptXProject:/workspace
+      - ./scripts:/usr/local/bin/scripts
 
     environment:
       DISPLAY: ${DISPLAY:-:1}
@@ -34,4 +35,4 @@ services:
               count: 1
               capabilities: [gpu]
 
-    command: ["sleep", "infinity"]
+    command: ["bash" ,"-c", "chmod +x /usr/local/bin/scripts/* && /usr/local/bin/scripts/start.sh ${START_ARGS:-}"]

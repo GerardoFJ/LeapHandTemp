@@ -1,0 +1,4 @@
+test:
+  rate: 30
+  id: 49
+  gains: [1,0,2,3]

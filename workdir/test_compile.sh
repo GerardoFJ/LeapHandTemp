@@ -18,4 +18,4 @@ CC=cl CXX=cl cmake -S "$SRC_DIR" -B "$BUILD_DIR" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD_DIR" -j
 
-echo "built in $BUILD_DIR -- run with: wine $BUILD_DIR/test.exe -c config/test.yaml"
+echo "built in $BUILD_DIR -- run with: wine $BUILD_DIR/<script>.exe "

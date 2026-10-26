@@ -100,6 +100,7 @@ RUN apt-get update && apt-get install -y --install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libusb-1.0-0 usbutils procps python3 binutils \
         x11-utils x11-xserver-utils xdotool xauth \
+        cmake ninja-build git ca-certificates\
     && rm -rf /var/lib/apt/lists/*
 
 ## PATCH THE WINE FILES
@@ -123,17 +124,6 @@ RUN set -eu; \
       *) echo "ERROR: built ${WINE_TAG} but package is '$got'" >&2; exit 1 ;; \
     esac
 
-COPY scripts/killall.sh              /usr/local/bin/haptx-killall.sh
-COPY scripts/start-dashboard.sh      /usr/local/bin/haptx-dashboard.sh
-COPY scripts/bind-devices.sh         /usr/local/bin/haptx-bind.sh
-COPY scripts/entrypoint.sh           /usr/local/bin/haptx-entrypoint.sh
-COPY scripts/bind-haptx-devices.py   /usr/local/share/haptx/bind-haptx-devices.py
-COPY scripts/build-cpp.sh            /usr/local/bin/haptx-build.sh
-RUN chmod +x /usr/local/bin/haptx-killall.sh \
-             /usr/local/bin/haptx-dashboard.sh \
-             /usr/local/bin/haptx-bind.sh \
-             /usr/local/bin/haptx-entrypoint.sh \
-             /usr/local/bin/haptx-build.sh
 
 # ---------------------------------------------------------------------------
 # Wire up MSVC.
@@ -154,5 +144,4 @@ RUN --mount=type=bind,source=sdk/haptx-prefix.tar.gz,target=/tmp/prefix.tar.gz \
  && test -f "/root/.wine/drive_c/ProgramData/HaptX/SDK/username.txt" \
  && echo "prefix unpacked, $(du -sh /root/.wine | cut -f1), user $(cat '/root/.wine/drive_c/ProgramData/HaptX/SDK/username.txt')"
 
-ENTRYPOINT ["/usr/local/bin/haptx-entrypoint.sh"]
 CMD ["sleep", "infinity"]
