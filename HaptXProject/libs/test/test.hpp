@@ -11,4 +11,14 @@ struct TestConfig {
     o.add("test.id", id, "ID value");
     o.add("test.rate", rate, "Rate value");
   }
+  void validate_options(){
+     if(rate < 100){
+      printf("Valid rate \n");
+
+    }
+    else{
+      printf("Incorrect rate \n");
+      rate = 60;
+    }
+  }
 };

@@ -6,6 +6,7 @@ int main(int argc, char** argv) {
   TestConfig test; 
   test.register_options(opts);
   opts.parse(argc, argv);
+  test.validate_options();
   printf("Params value rate %f  \n", test.rate);
   printf("Params value id %d \n ", test.id);
   printf("Param value gain:");

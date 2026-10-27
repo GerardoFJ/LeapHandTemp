@@ -50,7 +50,7 @@ bindevices() {
     kill_session >/dev/null 2>&1
 
     log "binding HaptX devices:"
-    python3 /usr/local/share/haptx/bind-haptx-devices.py "$WINEPREFIX/system.reg"
+    python3 /usr/local/bin/scripts/bind-haptx-devices.py "$WINEPREFIX/system.reg"
 
 }
 
