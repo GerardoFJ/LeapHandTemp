@@ -89,6 +89,7 @@ if [ "$RUN_CODE" != "" ]; then
   fi 
   echo "Running code $RUN_CODE"
   wine /workspace/build-win/$RUN_CODE.exe $CODE_CONFIG
+  echo "Code finished"
   exit 0
 fi
 

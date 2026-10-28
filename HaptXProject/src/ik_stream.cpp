@@ -36,6 +36,8 @@
 
 // Use HaptX library namespace
 using namespace HaptxApi;
+constexpr double PI = 3.14159265358979323846;
+
 
 std::atomic<bool> running{true};
 
@@ -226,8 +228,43 @@ int main(int argc, char** argv) {
       sender.send(std::string(buffer, static_cast<size_t>(length)));
 
       //Print data
-      printf("%s,,,%i,%i\n",buffer,ik_failures[g_side],frame_failures[g_side]);
+      // printf("%s,,,%i,%i\n",buffer,ik_failures[g_side],frame_failures[g_side]);
+      /// TEMPORAL TEST
+      const Clock::time_point now = Clock::now();
 
+      if (std::chrono::duration<double>(now - last_table).count() >= 0.1 && g_side == RD_LEFT) {
+      if (lines_drawn > 0) {
+        printf("\033[%dA", lines_drawn);  // redraw in place
+      }
+      constexpr double kDeg = 180.0 / PI;
+      printf("  finger    MCP    PIP    DIP    ADD   joint rotation [deg]\n");
+      for (unsigned int finger = 0; finger < F_LAST; finger++) {
+        const FingerData& f = fingers[finger];
+        if (f.has_angles) {
+          printf("  %-7s %5.0f  %5.0f  %5.0f  %5.0f ", FINGER_NAMES[finger],
+                 f.joint_rad[FJ_JOINT1] * kDeg, f.joint_rad[FJ_JOINT2] * kDeg,
+                 f.joint_rad[FJ_JOINT3] * kDeg, f.adduction_rad * kDeg);
+        } else {
+          printf("  %-7s    --     --     --     -- ", FINGER_NAMES[finger]);
+        }
+        if (f.has_orientations) {
+          // Total rotation per joint, rest pose included: only a liveness cue.
+          for (const Quaternion& q : f.orientations) {
+            printf("  %4.0f", 2.0 * std::acos(std::min(1.0f, std::fabs(q.w_))) * kDeg);
+          }
+          printf("   \n");
+        } else {
+          printf("    --    --    --   \n");
+        }
+      }
+      printf("  sent %-8lu  mocap frame fail %-5d  ik fail %-5d\n", seq[g_side], frame_failures[g_side],
+             ik_failures[g_side]);
+      lines_drawn = F_LAST + 2;
+      std::flush(std::cout);
+      last_table = now;
+    }
+
+ //////////////////////////////////////////////////////////////////////////
       }
 
     //Update current time
@@ -241,13 +278,13 @@ int main(int argc, char** argv) {
 
   }
 
-  printf("Finished!\n");
-  for(auto& g: haptxconfig.gloves){
-  g.first->shutdown();
-  }
-  airpack->shutdown();
+  printf("Shuting down.\n");
+  TerminateProcess(GetCurrentProcess(), 0);
+  // Correct way to shutdwon system, but usb still have some work to do
+  // for(auto& g: haptxconfig.gloves){
+  // g.first->shutdown();
+  // }
+  // airpack->shutdown();
   return 0;
-
-
 
 }
