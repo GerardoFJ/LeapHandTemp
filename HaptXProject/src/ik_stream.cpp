@@ -17,6 +17,7 @@
 #include <HaptxApi/user_profile_database.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <chrono>
 #include <cmath>
@@ -156,59 +157,94 @@ int main(int argc, char** argv) {
   const Clock::time_point start = Clock::now();
   Clock::time_point next = start;
   Clock::time_point last_table = start;
-  unsigned long seq = 0;
-  int ik_failures = 0;
-  int frame_failures = 0;
+  std::unordered_map<RelativeDirection,unsigned long> seq = {
+      {RD_LEFT, 0},
+      {RD_RIGHT, 0}
+  };
+  std::unordered_map<RelativeDirection,int> ik_failures = {
+      {RD_LEFT, 0},
+      {RD_RIGHT, 0}
+  };
+  std::unordered_map<RelativeDirection,int> frame_failures = {
+      {RD_LEFT, 0},
+      {RD_RIGHT, 0}
+  };
+  //TO CHECK
   int lines_drawn = 0;
-  // const char hand_letter = options.hand == RD_LEFT ? 'L' : 'R';
 
   AlternateHandIk::Config ik_setup;
   ik_setup.legacy_blend_enabled = ikconfig.legacy_blend;
-  std::unordered_map<Finger, FingerAngleHint> hints;
+  std::unordered_map<Finger,FingerAngleHint> i_hint;
+  std::unordered_map<RelativeDirection,std::unordered_map<Finger,FingerAngleHint>> hints = {
+    {RD_LEFT, i_hint},
+    {RD_RIGHT, i_hint}
+  };
   printf("IK: %s blend: %d\n\n", ikconfig.ik_method.c_str(), ikconfig.legacy_blend);
 
 
   while(running){
-  for(const auto& g: haptxconfig.gloves){
+    for(auto& g: haptxconfig.gloves){
+      RelativeDirection g_side = g.second->handedness;
+      char hand_letter = g_side == RD_LEFT ? 'L' : 'R';
+      g.first->update();
+      MocapFrame mocap_frame;
+      AnimFrame anim_frame;
 
-    g.first->update();
-
-    MocapFrame mocap_frame;
-    AnimFrame anim_frame;
-
-    anim_frame.hints = hints;
-    if (g.first->addToMocapFrame(&mocap_frame)) {
-      const bool solved =
-          ikconfig.ikmode
-              ? AlternateHandIk::addToAnimFrame(g.second, ik_setup, mocap_frame, profile, &anim_frame)
-              : DefaultHandIk::addToAnimFrame(g.second, mocap_frame, profile, &anim_frame);
-      if (solved) {
-        hints = anim_frame.hints;
+      anim_frame.hints = hints[g_side];
+      if (g.first->addToMocapFrame(&mocap_frame)) {
+        const bool solved =
+            ikconfig.ikmode
+                ? AlternateHandIk::addToAnimFrame(g.second, ik_setup, mocap_frame, profile, &anim_frame)
+                : DefaultHandIk::addToAnimFrame(g.second, mocap_frame, profile, &anim_frame);
+        if (solved) {
+          hints[g_side] = anim_frame.hints;
+        } else {
+          ik_failures[g_side]++;
+        }
       } else {
-        ik_failures++;
+        frame_failures[g_side]++;
       }
-    } else {
-      frame_failures++;
+
+
+      FingerData fingers[F_LAST];
+      const long long t_ms =
+          std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start).count();
+      char buffer[2048];
+      int length = snprintf(buffer, sizeof(buffer), "H2,%c,%lu,%lld", hand_letter, seq[g_side]++, t_ms);
+      for (unsigned int finger = 0; finger < F_LAST; finger++) {
+        fingers[finger] = fingerFrom(anim_frame, g_side, static_cast<Finger>(finger));
+        const FingerData& f = fingers[finger];
+        length += snprintf(buffer + length, sizeof(buffer) - length, ",%d,%.4f,%.4f,%.4f,%.4f,%d",
+                          f.has_angles ? 1 : 0, f.joint_rad[FJ_JOINT1], f.joint_rad[FJ_JOINT2],
+                          f.joint_rad[FJ_JOINT3], f.adduction_rad, f.has_orientations ? 1 : 0);
+        for (const Quaternion& q : f.orientations) {
+          length += snprintf(buffer + length, sizeof(buffer) - length, ",%.5f,%.5f,%.5f,%.5f",
+                            q.w_, q.x_, q.y_, q.z_);
+        }
+      }
+      //Send the data to socket
+      sender.send(std::string(buffer, static_cast<size_t>(length)));
+
+      //Print data
+      printf("%s,,,%i,%i\n",buffer,ik_failures[g_side],frame_failures[g_side]);
+
+      }
+
+    //Update current time
+    const Clock::time_point now = Clock::now();
+    next += std::chrono::duration_cast<Clock::duration>(period);
+    if (next < now) {
+      next = now;  // fell behind: don't try to catch up in a burst
     }
+    std::this_thread::sleep_until(next);
 
-
-    }   
-  printf("errors  = %i, %i\n",ik_failures, frame_failures);
 
   }
 
-
-
-
-
-
-
-
-
-
-
-
   printf("Finished!\n");
+  for(auto& g: haptxconfig.gloves){
+  g.first->shutdown();
+  }
   airpack->shutdown();
   return 0;
 
