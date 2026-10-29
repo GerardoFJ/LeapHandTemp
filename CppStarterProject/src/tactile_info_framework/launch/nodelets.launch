@@ -1,0 +1,13 @@
+<launch>
+  <!-- Parameters -->
+  <rosparam file="$(find tactile_info_framework)/config/default.yaml" />
+  <arg name="config" default="default" />
+  <param name="harc_config" type="str" value="$(find tactile_info_framework)/config/harc_$(arg config).yaml" />
+
+  <!-- Start manager nodelet -->
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
+
+  <!-- Start Acquisition and Processing nodelets -->
+  <node pkg="nodelet" type="nodelet" name="AcquisitionNodelet" args="load tactile_info_framework/AcquisitionNodelet standalone_nodelet" output="screen"/>
+  <node pkg="nodelet" type="nodelet" name="ProcessingNodelet" args="load tactile_info_framework/ProcessingNodelet standalone_nodelet" output="screen"/>
+</launch>

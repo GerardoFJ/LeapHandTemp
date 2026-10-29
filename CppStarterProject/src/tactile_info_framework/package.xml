@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package format="3">
+    <name>tactile_info_framework</name>
+    <version>0.0.0</version>
+    <description>The tactile_info_framework package</description>
+
+    <!-- One maintainer tag required, multiple allowed, one person per tag -->
+    <!-- Example:  -->
+    <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+    <maintainer email="selim@todo.todo">selim</maintainer>
+
+
+    <!-- One license tag required, multiple allowed, one license per tag -->
+    <!-- Commonly used license strings: -->
+    <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+    <license>TODO</license>
+
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+
+    <build_depend>rclcpp</build_depend>
+    <build_depend>rclpy</build_depend>
+    <build_depend>std_msgs</build_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>sensor_msgs</build_depend>
+    <build_depend>serial</build_depend>
+    <depend>HARC_IFBOX</depend>
+
+    <build_depend>cv_bridge</build_depend>
+
+    <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+    <build_depend>rosidl_default_generators</build_depend>
+
+    <member_of_group>rosidl_interface_packages</member_of_group>
+
+    <!-- The export tag contains other, unspecified, tags -->
+    <export>
+        <build_type>ament_cmake</build_type>
+        <nodelet plugin="${prefix}/nodelet_acq.xml" />
+        <nodelet plugin="${prefix}/nodelet_plugins.xml" />
+    </export>
+</package>

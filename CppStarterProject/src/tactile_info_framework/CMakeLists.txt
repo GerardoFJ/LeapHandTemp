@@ -1,0 +1,108 @@
+cmake_minimum_required(VERSION 3.10)
+project(tactile_info_framework)
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(image_transport REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(visualization_msgs REQUIRED)
+
+find_package(serial REQUIRED)
+
+find_package(OpenCV REQUIRED)
+
+find_package(HARC_IFBOX REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME} "msg/TactileContact.msg"
+                           DEPENDENCIES geometry_msgs)
+
+include_directories(include ${OpenCV_INCLUDE_DIRS})
+
+# Processing_component ###
+add_library(Processing_component SHARED src/ProcessingNodelet.cpp)
+
+ament_target_dependencies(
+  Processing_component
+  PUBLIC
+  rclcpp
+  rclcpp_components
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  cv_bridge)
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}
+                              "rosidl_typesupport_cpp")
+
+target_include_directories(Processing_component PUBLIC ${ament_INCLUDE_DIRS})
+
+target_link_libraries(
+  Processing_component PUBLIC HARC_IFBOX::HARC_IFBOX ${cpp_typesupport_target}
+                              ${ament_LIBRARIES})
+
+rclcpp_components_register_nodes(
+  Processing_component PLUGIN "tactile_info_framework::ProcessingNodelet"
+  EXECUTABLE ProcessingNodelet)
+
+target_include_directories(
+  Processing_component
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>)
+
+# AcquisitionNode ###
+add_library(Acquisition_component SHARED src/AcquisitionNodelet.cpp)
+
+ament_target_dependencies(
+  Acquisition_component
+  PUBLIC
+  rclcpp
+  rclcpp_components
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+  cv_bridge
+  visualization_msgs)
+
+target_include_directories(Acquisition_component PUBLIC ${ament_INCLUDE_DIRS})
+
+target_link_libraries(
+  Acquisition_component PUBLIC HARC_IFBOX::HARC_IFBOX ${ament_LIBRARIES}
+                               ${serial_LIBRARIES})
+
+target_include_directories(
+  Acquisition_component
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>)
+
+rclcpp_components_register_nodes(
+  Acquisition_component PLUGIN "tactile_info_framework::AcquisitionNodelet"
+  EXECUTABLE AcquisitionNodelet)
+
+ament_export_dependencies(rosidl_default_runtime)
+
+install(
+  TARGETS Processing_component Acquisition_component
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
+
+ament_package()
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}
+        DESTINATION include)
+
+# Mark other files for installation (e.g. launch and bag files, etc.)
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME}/)
+
+install(PROGRAMS scripts/MonochromeToColorMatrixVisualizer.py
+                 scripts/test_visu.py DESTINATION lib/${PROJECT_NAME})

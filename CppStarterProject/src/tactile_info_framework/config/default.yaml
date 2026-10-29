@@ -1,0 +1,11 @@
+# General configuration options for the acquisition and processing node
+/**:
+   ros__parameters:
+    publish_blured: true
+    publish_filtered: true
+    publish_contours: true
+    publish_centroids: true
+    activation_threshold: 20
+
+
+# HARC options are in harc_[config].yaml where [config] is passed to roslaunch

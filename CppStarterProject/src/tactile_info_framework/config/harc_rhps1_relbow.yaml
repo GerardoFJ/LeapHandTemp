@@ -1,0 +1,659 @@
+device: "/dev/serial/by-id/usb-Seeed_XIAO_nRF52840_Sense_56AAAD9B81683EF9-if00"
+baudrate: 921600
+rows: 32
+cols: 16
+patches:
+  # Keep a default mapping
+  - name: default
+  - name: BACK_UP
+    rows: 12
+    cols: 7
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 0, y: 0}
+      - dst: {x: 0, y: 1}
+        src: {x: 1, y: 0}
+      - dst: {x: 0, y: 2}
+        src: {x: 2, y: 0}
+      - dst: {x: 0, y: 3}
+        src: {x: 3, y: 0}
+      - dst: {x: 0, y: 4}
+        src: {x: 4, y: 0}
+      - dst: {x: 0, y: 5}
+        src: {x: 5, y: 0}
+      - dst: {x: 0, y: 6}
+        src: {x: 6, y: 0}
+      - dst: {x: 1, y: 0}
+        src: {x: 0, y: 1}
+      - dst: {x: 1, y: 1}
+        src: {x: 1, y: 1}
+      - dst: {x: 1, y: 2}
+        src: {x: 2, y: 1}
+      - dst: {x: 1, y: 3}
+        src: {x: 3, y: 1}
+      - dst: {x: 1, y: 4}
+        src: {x: 4, y: 1}
+      - dst: {x: 1, y: 5}
+        src: {x: 5, y: 1}
+      - dst: {x: 1, y: 6}
+        src: {x: 6, y: 1}
+      - dst: {x: 2, y: 0}
+        src: {x: 0, y: 2}
+      - dst: {x: 2, y: 1}
+        src: {x: 1, y: 2}
+      - dst: {x: 2, y: 2}
+        src: {x: 2, y: 2}
+      - dst: {x: 2, y: 3}
+        src: {x: 3, y: 2}
+      - dst: {x: 2, y: 4}
+        src: {x: 4, y: 2}
+      - dst: {x: 2, y: 5}
+        src: {x: 5, y: 2}
+      - dst: {x: 2, y: 6}
+        src: {x: 6, y: 2}
+      - dst: {x: 3, y: 0}
+        src: {x: 0, y: 3}
+      - dst: {x: 3, y: 1}
+        src: {x: 1, y: 3}
+      - dst: {x: 3, y: 2}
+        src: {x: 2, y: 3}
+      - dst: {x: 3, y: 3}
+        src: {x: 3, y: 3}
+      - dst: {x: 3, y: 4}
+        src: {x: 4, y: 3}
+      - dst: {x: 3, y: 5}
+        src: {x: 5, y: 3}
+      - dst: {x: 3, y: 6}
+        src: {x: 6, y: 3}
+      - dst: {x: 4, y: 0}
+        src: {x: 0, y: 4}
+      - dst: {x: 4, y: 1}
+        src: {x: 1, y: 4}
+      - dst: {x: 4, y: 2}
+        src: {x: 2, y: 4}
+      - dst: {x: 4, y: 3}
+        src: {x: 3, y: 4}
+      - dst: {x: 4, y: 4}
+        src: {x: 4, y: 4}
+      - dst: {x: 4, y: 5}
+        src: {x: 5, y: 4}
+      - dst: {x: 4, y: 6}
+        src: {x: 6, y: 4}
+      - dst: {x: 5, y: 0}
+        src: {x: 0, y: 5}
+      - dst: {x: 5, y: 1}
+        src: {x: 1, y: 5}
+      - dst: {x: 5, y: 2}
+        src: {x: 2, y: 5}
+      - dst: {x: 5, y: 3}
+        src: {x: 3, y: 5}
+      - dst: {x: 5, y: 4}
+        src: {x: 4, y: 5}
+      - dst: {x: 5, y: 5}
+        src: {x: 5, y: 5}
+      - dst: {x: 5, y: 6}
+        src: {x: 6, y: 5}
+      - dst: {x: 6, y: 0}
+        src: {x: 0, y: 6}
+      - dst: {x: 6, y: 1}
+        src: {x: 1, y: 6}
+      - dst: {x: 6, y: 2}
+        src: {x: 2, y: 6}
+      - dst: {x: 6, y: 3}
+        src: {x: 3, y: 6}
+      - dst: {x: 6, y: 4}
+        src: {x: 4, y: 6}
+      - dst: {x: 6, y: 5}
+        src: {x: 5, y: 6}
+      - dst: {x: 6, y: 6}
+        src: {x: 6, y: 6}
+      - dst: {x: 7, y: 0}
+        src: {x: 0, y: 7}
+      - dst: {x: 7, y: 1}
+        src: {x: 1, y: 7}
+      - dst: {x: 7, y: 2}
+        src: {x: 2, y: 7}
+      - dst: {x: 7, y: 3}
+        src: {x: 3, y: 7}
+      - dst: {x: 7, y: 4}
+        src: {x: 4, y: 7}
+      - dst: {x: 7, y: 5}
+        src: {x: 5, y: 7}
+      - dst: {x: 7, y: 6}
+        src: {x: 6, y: 7}
+      - dst: {x: 8, y: 0}
+        src: {x: 0, y: 8}
+      - dst: {x: 8, y: 1}
+        src: {x: 1, y: 8}
+      - dst: {x: 8, y: 2}
+        src: {x: 2, y: 8}
+      - dst: {x: 8, y: 3}
+        src: {x: 3, y: 8}
+      - dst: {x: 8, y: 4}
+        src: {x: 4, y: 8}
+      - dst: {x: 8, y: 5}
+        src: {x: 5, y: 8}
+      - dst: {x: 8, y: 6}
+        src: {x: 6, y: 8}
+      - dst: {x: 9, y: 0}
+        src: {x: 0, y: 9}
+      - dst: {x: 9, y: 1}
+        src: {x: 1, y: 9}
+      - dst: {x: 9, y: 2}
+        src: {x: 2, y: 9}
+      - dst: {x: 9, y: 3}
+        src: {x: 3, y: 9}
+      - dst: {x: 9, y: 4}
+        src: {x: 4, y: 9}
+      - dst: {x: 9, y: 5}
+        src: {x: 5, y: 9}
+      - dst: {x: 9, y: 6}
+        src: {x: 6, y: 9}
+      - dst: {x: 10, y: 0}
+        src: {x: 0, y: 10}
+      - dst: {x: 10, y: 1}
+        src: {x: 1, y: 10}
+      - dst: {x: 10, y: 2}
+        src: {x: 2, y: 10}
+      - dst: {x: 10, y: 3}
+        src: {x: 3, y: 10}
+      - dst: {x: 10, y: 4}
+        src: {x: 4, y: 10}
+      - dst: {x: 10, y: 5}
+        src: {x: 5, y: 10}
+      - dst: {x: 10, y: 6}
+        src: {x: 6, y: 10}
+      - dst: {x: 11, y: 0}
+        src: {x: 0, y: 11}
+      - dst: {x: 11, y: 1}
+        src: {x: 1, y: 11}
+      - dst: {x: 11, y: 2}
+        src: {x: 2, y: 11}
+      - dst: {x: 11, y: 3}
+        src: {x: 3, y: 11}
+      - dst: {x: 11, y: 4}
+        src: {x: 4, y: 11}
+      - dst: {x: 11, y: 5}
+        src: {x: 5, y: 11}
+      - dst: {x: 11, y: 6}
+        src: {x: 6, y: 11}
+  - name: BACK_DOWN
+    rows: 4
+    cols: 2
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 0, y: 12}
+      - dst: {x: 0, y: 1}
+        src: {x: 1, y: 12}
+      - dst: {x: 1, y: 0}
+        src: {x: 0, y: 13}
+      - dst: {x: 1, y: 1}
+        src: {x: 1, y: 13}
+      - dst: {x: 2, y: 0}
+        src: {x: 0, y: 14}
+      - dst: {x: 2, y: 1}
+        src: {x: 1, y: 14}
+      - dst: {x: 3, y: 0}
+        src: {x: 0, y: 15}
+      - dst: {x: 3, y: 1}
+        src: {x: 1, y: 15}
+  - name: RIGHT_UP
+    rows: 13
+    cols: 5
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 7, y: 0}
+      - dst: {x: 0, y: 1}
+        src: {x: 8, y: 0}
+      - dst: {x: 0, y: 2}
+        src: {x: 9, y: 0}
+      - dst: {x: 0, y: 3}
+        src: {x: 10, y: 0}
+      - dst: {x: 0, y: 4}
+        src: {x: 11, y: 0}
+      - dst: {x: 1, y: 0}
+        src: {x: 7, y: 1}
+      - dst: {x: 1, y: 1}
+        src: {x: 8, y: 1}
+      - dst: {x: 1, y: 2}
+        src: {x: 9, y: 1}
+      - dst: {x: 1, y: 3}
+        src: {x: 10, y: 1}
+      - dst: {x: 1, y: 4}
+        src: {x: 11, y: 1}
+      - dst: {x: 2, y: 0}
+        src: {x: 7, y: 2}
+      - dst: {x: 2, y: 1}
+        src: {x: 8, y: 2}
+      - dst: {x: 2, y: 2}
+        src: {x: 9, y: 2}
+      - dst: {x: 2, y: 3}
+        src: {x: 10, y: 2}
+      - dst: {x: 2, y: 4}
+        src: {x: 11, y: 2}
+      - dst: {x: 3, y: 0}
+        src: {x: 7, y: 3}
+      - dst: {x: 3, y: 1}
+        src: {x: 8, y: 3}
+      - dst: {x: 3, y: 2}
+        src: {x: 9, y: 3}
+      - dst: {x: 3, y: 3}
+        src: {x: 10, y: 3}
+      - dst: {x: 3, y: 4}
+        src: {x: 11, y: 3}
+      - dst: {x: 4, y: 0}
+        src: {x: 7, y: 4}
+      - dst: {x: 4, y: 1}
+        src: {x: 8, y: 4}
+      - dst: {x: 4, y: 2}
+        src: {x: 9, y: 4}
+      - dst: {x: 4, y: 3}
+        src: {x: 10, y: 4}
+      - dst: {x: 4, y: 4}
+        src: {x: 11, y: 4}
+      - dst: {x: 5, y: 0}
+        src: {x: 7, y: 5}
+      - dst: {x: 5, y: 1}
+        src: {x: 8, y: 5}
+      - dst: {x: 5, y: 2}
+        src: {x: 9, y: 5}
+      - dst: {x: 5, y: 3}
+        src: {x: 10, y: 5}
+      - dst: {x: 5, y: 4}
+        src: {x: 11, y: 5}
+      - dst: {x: 6, y: 0}
+        src: {x: 7, y: 6}
+      - dst: {x: 6, y: 1}
+        src: {x: 8, y: 6}
+      - dst: {x: 6, y: 2}
+        src: {x: 9, y: 6}
+      - dst: {x: 6, y: 3}
+        src: {x: 10, y: 6}
+      - dst: {x: 6, y: 4}
+        src: {x: 11, y: 6}
+      - dst: {x: 7, y: 0}
+        src: {x: 7, y: 7}
+      - dst: {x: 7, y: 1}
+        src: {x: 8, y: 7}
+      - dst: {x: 7, y: 2}
+        src: {x: 9, y: 7}
+      - dst: {x: 7, y: 3}
+        src: {x: 10, y: 7}
+      - dst: {x: 7, y: 4}
+        src: {x: 11, y: 7}
+      - dst: {x: 8, y: 0}
+        src: {x: 7, y: 8}
+      - dst: {x: 8, y: 1}
+        src: {x: 8, y: 8}
+      - dst: {x: 8, y: 2}
+        src: {x: 9, y: 8}
+      - dst: {x: 8, y: 3}
+        src: {x: 10, y: 8}
+      - dst: {x: 8, y: 4}
+        src: {x: 11, y: 8}
+      - dst: {x: 9, y: 0}
+        src: {x: 7, y: 9}
+      - dst: {x: 9, y: 1}
+        src: {x: 8, y: 9}
+      - dst: {x: 9, y: 2}
+        src: {x: 9, y: 9}
+      - dst: {x: 9, y: 3}
+        src: {x: 10, y: 9}
+      - dst: {x: 9, y: 4}
+        src: {x: 11, y: 9}
+      - dst: {x: 10, y: 0}
+        src: {x: 7, y: 10}
+      - dst: {x: 10, y: 1}
+        src: {x: 8, y: 10}
+      - dst: {x: 10, y: 2}
+        src: {x: 9, y: 10}
+      - dst: {x: 10, y: 3}
+        src: {x: 10, y: 10}
+      - dst: {x: 10, y: 4}
+        src: {x: 11, y: 10}
+      - dst: {x: 11, y: 0}
+        src: {x: 7, y: 11}
+      - dst: {x: 11, y: 1}
+        src: {x: 8, y: 11}
+      - dst: {x: 11, y: 2}
+        src: {x: 9, y: 11}
+      - dst: {x: 11, y: 3}
+        src: {x: 10, y: 11}
+      - dst: {x: 11, y: 4}
+        src: {x: 11, y: 11}
+      - dst: {x: 12, y: 0}
+        src: {x: 7, y: 12}
+      - dst: {x: 12, y: 1}
+        src: {x: 8, y: 12}
+      - dst: {x: 12, y: 2}
+        src: {x: 9, y: 12}
+      - dst: {x: 12, y: 3}
+        src: {x: 10, y: 12}
+      - dst: {x: 12, y: 4}
+        src: {x: 11, y: 12}
+  - name: FRONT_UP
+    rows: 12
+    cols: 7
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 12, y: 0}
+      - dst: {x: 0, y: 1}
+        src: {x: 13, y: 0}
+      - dst: {x: 0, y: 2}
+        src: {x: 14, y: 0}
+      - dst: {x: 0, y: 3}
+        src: {x: 15, y: 0}
+      - dst: {x: 0, y: 4}
+        src: {x: 16, y: 0}
+      - dst: {x: 0, y: 5}
+        src: {x: 17, y: 0}
+      - dst: {x: 0, y: 6}
+        src: {x: 18, y: 0}
+      - dst: {x: 1, y: 0}
+        src: {x: 12, y: 1}
+      - dst: {x: 1, y: 1}
+        src: {x: 13, y: 1}
+      - dst: {x: 1, y: 2}
+        src: {x: 14, y: 1}
+      - dst: {x: 1, y: 3}
+        src: {x: 15, y: 1}
+      - dst: {x: 1, y: 4}
+        src: {x: 16, y: 1}
+      - dst: {x: 1, y: 5}
+        src: {x: 17, y: 1}
+      - dst: {x: 1, y: 6}
+        src: {x: 18, y: 1}
+      - dst: {x: 2, y: 0}
+        src: {x: 12, y: 2}
+      - dst: {x: 2, y: 1}
+        src: {x: 13, y: 2}
+      - dst: {x: 2, y: 2}
+        src: {x: 14, y: 2}
+      - dst: {x: 2, y: 3}
+        src: {x: 15, y: 2}
+      - dst: {x: 2, y: 4}
+        src: {x: 16, y: 2}
+      - dst: {x: 2, y: 5}
+        src: {x: 17, y: 2}
+      - dst: {x: 2, y: 6}
+        src: {x: 18, y: 2}
+      - dst: {x: 3, y: 0}
+        src: {x: 12, y: 3}
+      - dst: {x: 3, y: 1}
+        src: {x: 13, y: 3}
+      - dst: {x: 3, y: 2}
+        src: {x: 14, y: 3}
+      - dst: {x: 3, y: 3}
+        src: {x: 15, y: 3}
+      - dst: {x: 3, y: 4}
+        src: {x: 16, y: 3}
+      - dst: {x: 3, y: 5}
+        src: {x: 17, y: 3}
+      - dst: {x: 3, y: 6}
+        src: {x: 18, y: 3}
+      - dst: {x: 4, y: 0}
+        src: {x: 12, y: 4}
+      - dst: {x: 4, y: 1}
+        src: {x: 13, y: 4}
+      - dst: {x: 4, y: 2}
+        src: {x: 14, y: 4}
+      - dst: {x: 4, y: 3}
+        src: {x: 15, y: 4}
+      - dst: {x: 4, y: 4}
+        src: {x: 16, y: 4}
+      - dst: {x: 4, y: 5}
+        src: {x: 17, y: 4}
+      - dst: {x: 4, y: 6}
+        src: {x: 18, y: 4}
+      - dst: {x: 5, y: 0}
+        src: {x: 12, y: 5}
+      - dst: {x: 5, y: 1}
+        src: {x: 13, y: 5}
+      - dst: {x: 5, y: 2}
+        src: {x: 14, y: 5}
+      - dst: {x: 5, y: 3}
+        src: {x: 15, y: 5}
+      - dst: {x: 5, y: 4}
+        src: {x: 16, y: 5}
+      - dst: {x: 5, y: 5}
+        src: {x: 17, y: 5}
+      - dst: {x: 5, y: 6}
+        src: {x: 18, y: 5}
+      - dst: {x: 6, y: 0}
+        src: {x: 12, y: 6}
+      - dst: {x: 6, y: 1}
+        src: {x: 13, y: 6}
+      - dst: {x: 6, y: 2}
+        src: {x: 14, y: 6}
+      - dst: {x: 6, y: 3}
+        src: {x: 15, y: 6}
+      - dst: {x: 6, y: 4}
+        src: {x: 16, y: 6}
+      - dst: {x: 6, y: 5}
+        src: {x: 17, y: 6}
+      - dst: {x: 6, y: 6}
+        src: {x: 18, y: 6}
+      - dst: {x: 7, y: 0}
+        src: {x: 12, y: 7}
+      - dst: {x: 7, y: 1}
+        src: {x: 13, y: 7}
+      - dst: {x: 7, y: 2}
+        src: {x: 14, y: 7}
+      - dst: {x: 7, y: 3}
+        src: {x: 15, y: 7}
+      - dst: {x: 7, y: 4}
+        src: {x: 16, y: 7}
+      - dst: {x: 7, y: 5}
+        src: {x: 17, y: 7}
+      - dst: {x: 7, y: 6}
+        src: {x: 18, y: 7}
+      - dst: {x: 8, y: 0}
+        src: {x: 12, y: 8}
+      - dst: {x: 8, y: 1}
+        src: {x: 13, y: 8}
+      - dst: {x: 8, y: 2}
+        src: {x: 14, y: 8}
+      - dst: {x: 8, y: 3}
+        src: {x: 15, y: 8}
+      - dst: {x: 8, y: 4}
+        src: {x: 16, y: 8}
+      - dst: {x: 8, y: 5}
+        src: {x: 17, y: 8}
+      - dst: {x: 8, y: 6}
+        src: {x: 18, y: 8}
+      - dst: {x: 9, y: 0}
+        src: {x: 12, y: 9}
+      - dst: {x: 9, y: 1}
+        src: {x: 13, y: 9}
+      - dst: {x: 9, y: 2}
+        src: {x: 14, y: 9}
+      - dst: {x: 9, y: 3}
+        src: {x: 15, y: 9}
+      - dst: {x: 9, y: 4}
+        src: {x: 16, y: 9}
+      - dst: {x: 9, y: 5}
+        src: {x: 17, y: 9}
+      - dst: {x: 9, y: 6}
+        src: {x: 18, y: 9}
+      - dst: {x: 10, y: 0}
+        src: {x: 12, y: 10}
+      - dst: {x: 10, y: 1}
+        src: {x: 13, y: 10}
+      - dst: {x: 10, y: 2}
+        src: {x: 14, y: 10}
+      - dst: {x: 10, y: 3}
+        src: {x: 15, y: 10}
+      - dst: {x: 10, y: 4}
+        src: {x: 16, y: 10}
+      - dst: {x: 10, y: 5}
+        src: {x: 17, y: 10}
+      - dst: {x: 10, y: 6}
+        src: {x: 18, y: 10}
+      - dst: {x: 11, y: 0}
+        src: {x: 12, y: 11}
+      - dst: {x: 11, y: 1}
+        src: {x: 13, y: 11}
+      - dst: {x: 11, y: 2}
+        src: {x: 14, y: 11}
+      - dst: {x: 11, y: 3}
+        src: {x: 15, y: 11}
+      - dst: {x: 11, y: 4}
+        src: {x: 16, y: 11}
+      - dst: {x: 11, y: 5}
+        src: {x: 17, y: 11}
+      - dst: {x: 11, y: 6}
+        src: {x: 18, y: 11}
+  - name: FRONT_DOWN
+    rows: 4
+    cols: 2
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 12, y: 12}
+      - dst: {x: 0, y: 1}
+        src: {x: 13, y: 12}
+      - dst: {x: 1, y: 0}
+        src: {x: 12, y: 13}
+      - dst: {x: 1, y: 1}
+        src: {x: 13, y: 13}
+      - dst: {x: 2, y: 0}
+        src: {x: 12, y: 14}
+      - dst: {x: 2, y: 1}
+        src: {x: 13, y: 14}
+      - dst: {x: 3, y: 0}
+        src: {x: 12, y: 15}
+      - dst: {x: 3, y: 1}
+        src: {x: 13, y: 15}
+  - name: LEFT_UP
+    rows: 13
+    cols: 5
+    mappings:
+      - dst: {x: 0, y: 0}
+        src: {x: 19, y: 0}
+      - dst: {x: 0, y: 1}
+        src: {x: 20, y: 0}
+      - dst: {x: 0, y: 2}
+        src: {x: 21, y: 0}
+      - dst: {x: 0, y: 3}
+        src: {x: 22, y: 0}
+      - dst: {x: 0, y: 4}
+        src: {x: 23, y: 0}
+      - dst: {x: 1, y: 0}
+        src: {x: 19, y: 1}
+      - dst: {x: 1, y: 1}
+        src: {x: 20, y: 1}
+      - dst: {x: 1, y: 2}
+        src: {x: 21, y: 1}
+      - dst: {x: 1, y: 3}
+        src: {x: 22, y: 1}
+      - dst: {x: 1, y: 4}
+        src: {x: 23, y: 1}
+      - dst: {x: 2, y: 0}
+        src: {x: 19, y: 2}
+      - dst: {x: 2, y: 1}
+        src: {x: 20, y: 2}
+      - dst: {x: 2, y: 2}
+        src: {x: 21, y: 2}
+      - dst: {x: 2, y: 3}
+        src: {x: 22, y: 2}
+      - dst: {x: 2, y: 4}
+        src: {x: 23, y: 2}
+      - dst: {x: 3, y: 0}
+        src: {x: 19, y: 3}
+      - dst: {x: 3, y: 1}
+        src: {x: 20, y: 3}
+      - dst: {x: 3, y: 2}
+        src: {x: 21, y: 3}
+      - dst: {x: 3, y: 3}
+        src: {x: 22, y: 3}
+      - dst: {x: 3, y: 4}
+        src: {x: 23, y: 3}
+      - dst: {x: 4, y: 0}
+        src: {x: 19, y: 4}
+      - dst: {x: 4, y: 1}
+        src: {x: 20, y: 4}
+      - dst: {x: 4, y: 2}
+        src: {x: 21, y: 4}
+      - dst: {x: 4, y: 3}
+        src: {x: 22, y: 4}
+      - dst: {x: 4, y: 4}
+        src: {x: 23, y: 4}
+      - dst: {x: 5, y: 0}
+        src: {x: 19, y: 5}
+      - dst: {x: 5, y: 1}
+        src: {x: 20, y: 5}
+      - dst: {x: 5, y: 2}
+        src: {x: 21, y: 5}
+      - dst: {x: 5, y: 3}
+        src: {x: 22, y: 5}
+      - dst: {x: 5, y: 4}
+        src: {x: 23, y: 5}
+      - dst: {x: 6, y: 0}
+        src: {x: 19, y: 6}
+      - dst: {x: 6, y: 1}
+        src: {x: 20, y: 6}
+      - dst: {x: 6, y: 2}
+        src: {x: 21, y: 6}
+      - dst: {x: 6, y: 3}
+        src: {x: 22, y: 6}
+      - dst: {x: 6, y: 4}
+        src: {x: 23, y: 6}
+      - dst: {x: 7, y: 0}
+        src: {x: 19, y: 7}
+      - dst: {x: 7, y: 1}
+        src: {x: 20, y: 7}
+      - dst: {x: 7, y: 2}
+        src: {x: 21, y: 7}
+      - dst: {x: 7, y: 3}
+        src: {x: 22, y: 7}
+      - dst: {x: 7, y: 4}
+        src: {x: 23, y: 7}
+      - dst: {x: 8, y: 0}
+        src: {x: 19, y: 8}
+      - dst: {x: 8, y: 1}
+        src: {x: 20, y: 8}
+      - dst: {x: 8, y: 2}
+        src: {x: 21, y: 8}
+      - dst: {x: 8, y: 3}
+        src: {x: 22, y: 8}
+      - dst: {x: 8, y: 4}
+        src: {x: 23, y: 8}
+      - dst: {x: 9, y: 0}
+        src: {x: 19, y: 9}
+      - dst: {x: 9, y: 1}
+        src: {x: 20, y: 9}
+      - dst: {x: 9, y: 2}
+        src: {x: 21, y: 9}
+      - dst: {x: 9, y: 3}
+        src: {x: 22, y: 9}
+      - dst: {x: 9, y: 4}
+        src: {x: 23, y: 9}
+      - dst: {x: 10, y: 0}
+        src: {x: 19, y: 10}
+      - dst: {x: 10, y: 1}
+        src: {x: 20, y: 10}
+      - dst: {x: 10, y: 2}
+        src: {x: 21, y: 10}
+      - dst: {x: 10, y: 3}
+        src: {x: 22, y: 10}
+      - dst: {x: 10, y: 4}
+        src: {x: 23, y: 10}
+      - dst: {x: 11, y: 0}
+        src: {x: 19, y: 11}
+      - dst: {x: 11, y: 1}
+        src: {x: 20, y: 11}
+      - dst: {x: 11, y: 2}
+        src: {x: 21, y: 11}
+      - dst: {x: 11, y: 3}
+        src: {x: 22, y: 11}
+      - dst: {x: 11, y: 4}
+        src: {x: 23, y: 11}
+      - dst: {x: 12, y: 0}
+        src: {x: 19, y: 12}
+      - dst: {x: 12, y: 1}
+        src: {x: 20, y: 12}
+      - dst: {x: 12, y: 2}
+        src: {x: 21, y: 12}
+      - dst: {x: 12, y: 3}
+        src: {x: 22, y: 12}
+      - dst: {x: 12, y: 4}
+        src: {x: 23, y: 12}

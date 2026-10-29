@@ -1,0 +1,22 @@
+name: Run pre-commit checks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  main:
+    runs-on: self-hosted
+    steps:
+    - name: Setup environment
+      uses: jrl-umi3218/github-actions/setup-self-hosted-runner@master
+      with:
+        GITHUB_PAT: ${{ secrets.CI_GITHUB_PAT }}
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+    - uses: pre-commit/action@v3.0.0
+    - uses: pre-commit-ci/lite-action@v1.0.1
+      if: always()

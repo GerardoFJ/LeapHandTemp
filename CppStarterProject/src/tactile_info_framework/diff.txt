@@ -1,0 +1,20 @@
+diff --git a/config/harc_rhps1_relbow.yaml b/config/harc_rhps1_relbow.yaml
+index 707873b..7666e4b 100644
+--- a/config/harc_rhps1_relbow.yaml
++++ b/config/harc_rhps1_relbow.yaml
+@@ -1,4 +1,4 @@
+-device: "/dev/serial/by-id/usb-FTDI_USB-RS485_Cable_AU05DASF-if00-port0"
++device: "/dev/serial/by-id/usb-Seeed_XIAO_nRF52840_Sense_56AAAD9B81683EF9-if00"
+ baudrate: 921600
+ rows: 32
+ cols: 16
+diff --git a/config/harc_rhps1_rshoulder.yaml b/config/harc_rhps1_rshoulder.yaml
+index a1d5834..cbca71f 100644
+--- a/config/harc_rhps1_rshoulder.yaml
++++ b/config/harc_rhps1_rshoulder.yaml
+@@ -1,4 +1,4 @@
+-device: "/dev/serial/by-id/usb-FTDI_USB-RS485_Cable_AU05DASF-if00-port0"
++device: "/dev/serial/by-id/usb-Seeed_XIAO_nRF52840_Sense_A9F577C69790F7A4-if00"
+ baudrate: 921600
+ rows: 32
+ cols: 16

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>HARC_IFBOX</name>
+  <version>1.0.0</version>
+  <description>Acquisition library for HARC IFBOX sensors</description>
+  <maintainer email="selim@todo.todo">selim</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>cmake</buildtool_depend>
+
+  <depend>serial</depend>
+  <depend>yaml-cpp</depend>
+  <build_depend>libncurses-dev</build_depend>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
