@@ -24,7 +24,7 @@ if(WIN32)
 endif()
 
 # ---- Executables ----
-foreach(src ik_stream)
+foreach(src ik_stream ik_stream_feedback)
   add_executable(${src} src/${src}.cpp)
   target_link_libraries(${src} PRIVATE options)
 
