@@ -47,7 +47,7 @@ fi
 
 if [ "$COMPILE" = "1" ]; then
    echo "Compiling code"
-   if /workspace/test_compile.sh; then
+   if /workspace/compile_proj.sh; then
      echo "Compiled success"
    else
      echo "Compile FAILED"
